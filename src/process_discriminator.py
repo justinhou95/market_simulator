@@ -139,9 +139,6 @@ def T_global(set1, set2, order, verbose=True, normalise=True, compute_sigs=True)
         Y.append(y[0])
         PHI_Y.append(y[1])
     min_phi_y = min(PHI_Y)
-
-    dim = np.shape(set1[0])[-1]
-    keys = get_keys(dim, order)
     
     min_phi = min(min_phi_x, min_phi_y)
     
@@ -164,6 +161,7 @@ def Phi_fix(X, order, normalise=True, compute_sigs=True, phi_x = 1):
         return sig
     
     keys = get_keys(dim, order)
+    
 
     Lambda = np.array([phi_x ** len(t) for t in keys])
     
