@@ -71,14 +71,14 @@ def Phi(X, order, normalise=True, compute_sigs=True):
     if not normalise:
         return sig
     
-    print(np.linalg.norm(sig)**2)
+#     print(np.linalg.norm(sig)**2)
     
     keys = get_keys(dim, order)
 
     phi_x = phi(tuple(sig), order, keys)
     Lambda = np.array([phi_x ** len(t) for t in keys])
 
-    print(np.linalg.norm(Lambda * sig)**2)
+#     print(np.linalg.norm(Lambda * sig)**2)
     
     return Lambda * sig
 

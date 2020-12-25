@@ -7,7 +7,7 @@ import importlib
 from tensorflow import keras
 from tensorflow.keras import layers
 
-tf.keras.backend.set_floatx('float64')
+tf.keras.backend.set_floatx('float32')
 
 
 
@@ -98,7 +98,7 @@ class CVAE(object):
 
 
 class VAE(object):
-    """Variational Auto Encoder (CVAE)."""
+    """Variational Auto Encoder (VAE)."""
 
     def __init__(self, n_latent, n_hidden, alpha):
         
