@@ -70,9 +70,19 @@ def reservoirfield(state,increment):
         value = value + sigmoid(np.matmul(A[i],state) + beta[i])*increment[i]
     return value
 
+def cut_path(path,sublength):
+    start = 0
+    end = start + sublength 
+    path_split = []
+    while start < path.shape[0]-5:
+        path_split.append(path[start:end])
+        start += sublength
+        end = start + sublength
+    return np.array(path_split)
+
 
 class SDE:
-    def __init__(self,timehorizon,initialvalue,dimension,dimensionBM,dimensionR,vectorfield,timesteps,):
+    def __init__(self,timehorizon,initialvalue,dimension,dimensionBM,dimensionR,vectorfield,timesteps):
         self.timehorizon = timehorizon
         self.initialvalue = initialvalue # np array
         self.dimension = dimension
@@ -83,7 +93,7 @@ class SDE:
 
     def path(self):
         BMpath = [np.zeros(self.dimensionBM)]
-        SDEpath = [np.array([1.0, self.initialvalue])]
+        SDEpath = [self.initialvalue]
         for i in range(self.timesteps):
             helper = np.random.normal(0,np.sqrt(self.timehorizon/self.timesteps),self.dimensionBM)
             BMpath = BMpath + [BMpath[-1]+helper]
@@ -102,9 +112,13 @@ class SDE:
             
         return [BMpath, SDEpath]
         
-    def reservoir(self,BMpath):
-        reservoirpath = [canonical(0,self.dimensionR)*self.initialvalue]
-        for i in range(self.timesteps):
+    def reservoir(self,BMpath, flag = 'initial'):
+        helper = canonical(0,self.dimensionR)
+        if flag != 'naive':
+            helper[:self.dimension,0] = self.initialvalue
+        reservoirpath = [helper]
+        l_helper = BMpath.shape[0]
+        for i in range(l_helper-1):
             increment = BMpath[i+1]-BMpath[i]
             reservoirpath = reservoirpath + [np.exp(-0.0*self.timehorizon/self.timesteps)*(reservoirpath[-1]+reservoirfield(reservoirpath[-1],increment))]
         return reservoirpath    
@@ -113,9 +127,10 @@ class Resevoir:
     def __init__(self, sde, training):
         self.sde = sde
         self.training = training
+        self.BMpath=np.array(self.training[0])
+        self.SDEpath=np.array(self.training[1])
         
     def prepare(self, depth_learn, traindtype = 'all'):
-        
         self.traindtype = traindtype
         self.depth_learn = depth_learn
         
@@ -132,8 +147,7 @@ class Resevoir:
         print(np.shape(self.Ytrain))
         
         
-
-        X=self.sde.reservoir(self.BMpath)
+        X=self.sde.reservoir(np.array(self.BMpath))
         np.shape(X)
         self.Xdata = np.squeeze(X)
         self.Xdatadiff = np.diff(self.Xdata,axis=0)
@@ -158,10 +172,11 @@ class Resevoir:
                 Xtrain_sig = Xdata_sig[:1000]
             elif traindtype == 'diff':
                 Xtrain_sig = Xdatadiff_sig[:1000:1]
-            print(np.shape(Xtrain_sig))
+            print(np.shape(Xtrain_sig),end = '')
             self.X_sig_all.append(Xdata_sig)
             self.X_sig_train_all.append(Xtrain_sig)
             self.X_sig_all_diff.append(Xdatadiff_sig)
+        print('')
             
     def train(self):
         alphas=np.logspace(-10, -9, 2)
@@ -228,11 +243,12 @@ class Resevoir:
             plt.suptitle('Training error')
             plt.savefig(name + '/3.png')
             plt.show()
+            
     def plot_valid(self,verbose = False):
         generalization = self.sde.path()
         BMpath_valid = generalization[0]
 
-        Xvalid = self.sde.reservoir(BMpath_valid)
+        Xvalid = self.sde.reservoir(np.array(BMpath_valid))
         Xvalid = np.squeeze(Xvalid)
         Xvalid_diff = np.diff(Xvalid,axis=0)
 
@@ -296,6 +312,196 @@ class Resevoir:
 
         plt.savefig(name + '/5.png')
         plt.show()
+        
+        
+        
+class Resevoir_split:
+    def __init__(self, sde, training):
+        self.sde = sde
+        self.training = training
+        self.BMpath=np.array(self.training[0])
+        self.SDEpath=np.array(self.training[1])  
+        self.initial = self.SDEpath[0,:]
+        
+    def prepare(self, depth_learn):
+        self.depth_learn = depth_learn
+        self.Ydata = self.SDEpath
+        print(self.Ydata.shape)
+        
+        
+        X = self.sde.reservoir(np.array(self.BMpath),'naive')
+        self.X = np.squeeze(X)
+        self.Xdata0 = np.tensordot(self.X,self.initial,axes = 0)
+        self.Xdata = np.reshape(self.Xdata0,[-1,self.Xdata0.shape[-1]*self.Xdata0.shape[-2]])  
+        print(self.Xdata.shape)
+        
+        
+        self.X_sig_all = []
+        for depth in self.depth_learn:
+            sig_path_stream = Sig_method.sig_stream2(np.array(self.BMpath),depth)[0,:,:].numpy()
+            Xdata_sig = sig_path_stream
+            self.X_sig_all.append(Xdata_sig)
+            print(Xdata_sig.shape,end='')
+        print('')
+
+    def prepare_split(self, depth_learn, sublength, trainto):
+        self.sublength = sublength
+        self.BMpath_split = cut_path(self.BMpath[:trainto+1],sublength)    
+        # (batch, sublength, dimensionBM)   i.e. (2,500,2)  non-intersection between different subpath
+        
+        self.SDEpath_split = cut_path(self.SDEpath[:trainto+1],sublength)    # (batch, sublength, dimension)
+        self.initial_split = np.array([path[0,:] for path in self.SDEpath_split]) # (batch, dimension)
+        self.depth_learn = depth_learn  # depth > sublength include no further information but increase the dimension
+        
+        self.Ytrain0 = self.SDEpath_split
+        self.Ytrain = np.reshape(self.Ytrain0,[-1,self.Ytrain0.shape[-1]])
+        print(self.Ytrain.shape)
+        
+        self.resevior_path_split = [np.reshape(np.array(self.sde.reservoir(p,'naive')),[-1,self.sde.dimensionR]) for p in self.BMpath_split]
+        self.Xtrain0 = np.array([np.tensordot(x,y,axes = 0) \
+                                for x,y in zip(self.resevior_path_split, self.initial_split)])
+        self.Xtrain = np.reshape(self.Xtrain0,[-1,self.Xtrain0.shape[-1]*self.Xtrain0.shape[-2]])  
+        print(self.Xtrain.shape)
+        
+        
+
+        self.X_sig_train_all = []
+        for depth in self.depth_learn:
+            self.sig_path_stream_split = [Sig_method.sig_stream2(np.array(path),depth)[0,:,:].numpy() for path in self.BMpath_split]
+            # (batch, sublength+1, dim_sig)
+            # Note that the first sig is always (1,0,...,0)
+            Xtrain_sig0 = np.array([np.tensordot(x,y,axes = 0) \
+                                for x,y in zip(self.sig_path_stream_split, self.initial_split)])
+            # (batch, sublength+1, dim_sig * dimension)
+            # Note that Xtrain[:][0,:dimension]  == initial_split[:]
+            Xtrain_sig = np.reshape(Xtrain_sig0,[-1,Xtrain_sig0.shape[-1]*Xtrain_sig0.shape[-2]]) 
+            self.X_sig_train_all.append(Xtrain_sig)
+            print(np.shape(Xtrain_sig),end='')
+        print('')
+            
+        
+     
+    def train_split(self):
+        alphas=np.logspace(-10, -9, 2)
+        cv = 10
+        self.lm = linear_model.RidgeCV(alphas = alphas, cv = cv)
+        self.model = self.lm.fit(self.Xtrain,self.Ytrain)
+        print('score: ',self.model.score(self.Xtrain,self.Ytrain))
+        print('max coefficient: ',np.max(np.abs(self.model.coef_)))
+        self.lm_all = []
+        self.model_all = []
+        for Xtrain_sig in self.X_sig_train_all:
+            lm_sig = linear_model.RidgeCV(alphas = alphas, cv = cv)
+            model_sig = lm_sig.fit(Xtrain_sig,self.Ytrain)
+            print('score: ',model_sig.score(Xtrain_sig,self.Ytrain))
+            print('max coefficient: ',np.max(np.abs(model_sig.coef_)))
+            self.lm_all.append(lm_sig)
+            self.model_all.append(model_sig)
+            print('alpha： ',lm_sig.alpha_)
+    
+    def plot_train_split(self,verbose = False):
+        
+        f,p=plt.subplots(1,2,figsize=(16,3))
+        self.DIFF = []
+        self.ERROR = []
+        for i in range(2):
+            for model_sig, Xdata_sig in zip(self.model_all, self.X_sig_all):
+                helper0 = np.tensordot(Xdata_sig, self.initial, axes = 0)
+                helper = np.reshape(helper0,[-1,helper0.shape[-1]*helper0.shape[-2]])
+                predict = model_sig.predict(helper)
+
+                p[i].plot(predict[:,i]) 
+                diff = np.abs(predict[:,i] - self.Ydata[:][:,i])
+                error = np.max(diff)
+                self.DIFF.append(diff)
+                self.ERROR.append(error)
+            predict = self.model.predict(self.Xdata[:])
+            p[i].plot(predict[:,i])
+            p[i].plot(self.Ydata[:][:,i])
+            p[i].legend(self.depth_learn +  ['Res','True'],loc = 'upper left')
+        plt.suptitle('Training path')
+        plt.savefig(name + '/2.png')
+        plt.show()
+        
+        if verbose == True:
+            f,p=plt.subplots(1,2,figsize=(16,3))
+            [p[0].plot(diff) for diff in self.DIFF[:len(self.depth_learn)]]
+            p[0].legend(self.depth_learn)
+            [p[1].plot(diff) for diff in self.DIFF[len(self.depth_learn):]]
+            p[1].legend(self.depth_learn)
+            plt.show()
+
+            f,p=plt.subplots(1,2,figsize=(16,3))
+            p[0].plot(self.depth_learn, self.ERROR[:len(self.depth_learn)],'o-')
+            p[0].set_yscale('log')
+            p[1].plot(self.depth_learn, self.ERROR[len(self.depth_learn):],'o-')
+            p[1].set_yscale('log')
+            plt.suptitle('Training error')
+            plt.savefig(name + '/3.png')
+            plt.show()
+            
+            
+    def plot_valid_split(self,validto,verbose = False):
+        self.generalization = self.sde.path()
+        self.BMpath_valid = self.generalization[0]
+        
+        Y = self.generalization[1]
+        self.Yvalid = np.squeeze(Y)
+
+        X = self.sde.reservoir(np.array(self.BMpath_valid),'naive')
+        self.X = np.squeeze(X)
+        self.Xvalid0 = np.tensordot(self.X,self.initial,axes = 0)
+        self.Xvalid = np.reshape(self.Xvalid0,[-1,self.Xvalid0.shape[-1]*self.Xvalid0.shape[-2]])  
+
+        self.Xvalid_sig_all = []
+        for depth in self.depth_learn:
+            sig_path_stream = Sig_method.sig_stream2(np.array(self.BMpath_valid),depth)[0,:,:].numpy()
+            Xdata_sig = sig_path_stream
+            self.Xvalid_sig_all.append(Xdata_sig)
+            
+
+        self.DIFF_valid = []
+        self.ERROR_valid = []
+        f,p=plt.subplots(1,2,figsize=(16,3))
+        for i in range(2):
+            for model_sig, Xvalid_sig in zip(self.model_all, self.Xvalid_sig_all):
+                helper0 = np.tensordot(Xvalid_sig[:validto + 1], self.initial, axes = 0)
+                helper = np.reshape(helper0,[-1,helper0.shape[-1]*helper0.shape[-2]])
+                predict = model_sig.predict(helper)
+                p[i].plot(predict[:,i])
+                diff = np.abs(predict[:,i] - self.Yvalid[:validto + 1][:,i])
+                error = np.max(diff)
+                self.DIFF_valid.append(diff)
+                self.ERROR_valid.append(error)
+                
+            predict = self.model.predict(self.Xvalid[:validto + 1])
+            p[i].plot(predict[:,i])
+            p[i].plot(self.Yvalid[:validto + 1][:,i])
+            p[i].legend(self.depth_learn +  ['Res','True'],loc = 'upper left')
+        plt.suptitle('Validation path')
+        plt.savefig(name + '/4.png')
+        plt.show()
+        
+        if verbose == True:
+            f,p=plt.subplots(1,2,figsize=(16,3))
+            [p[0].plot(diff) for diff in self.DIFF_valid[:len(self.depth_learn)]]
+            p[0].legend(self.depth_learn)
+            [p[1].plot(diff) for diff in self.DIFF_valid[len(self.depth_learn):]]
+            p[1].legend(self.depth_learn)
+            plt.show()
+        
+        f,p=plt.subplots(1,2,figsize=(16,3))
+        p[0].plot(self.depth_learn, self.ERROR_valid[:len(self.depth_learn)],'o-')
+        p[0].set_yscale('log')
+        p[1].plot(self.depth_learn, self.ERROR_valid[len(self.depth_learn):],'o-')
+        p[1].set_yscale('log')
+        plt.suptitle('Validation error')
+
+        plt.savefig(name + '/5.png')
+        plt.show()
+        
+
+            
 
     
         
