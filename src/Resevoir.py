@@ -326,14 +326,14 @@ class Resevoir_split:
     def prepare(self, depth_learn):
         self.depth_learn = depth_learn
         self.Ydata = self.SDEpath
-        print(self.Ydata.shape)
+        print(self.Ydata.shape,end=', ')
         
         
         X = self.sde.reservoir(np.array(self.BMpath),'naive')
         self.X = np.squeeze(X)
         self.Xdata0 = np.tensordot(self.X,self.initial,axes = 0)
         self.Xdata = np.reshape(self.Xdata0,[-1,self.Xdata0.shape[-1]*self.Xdata0.shape[-2]])  
-        print(self.Xdata.shape)
+        print(self.Xdata.shape,end=', ')
         
         
         self.X_sig_all = []
@@ -341,7 +341,7 @@ class Resevoir_split:
             sig_path_stream = Sig_method.sig_stream2(np.array(self.BMpath),depth)[0,:,:].numpy()
             Xdata_sig = sig_path_stream
             self.X_sig_all.append(Xdata_sig)
-            print(Xdata_sig.shape,end='')
+            print(Xdata_sig.shape,end=', ')
         print('')
 
     def prepare_split(self, depth_learn, sublength, trainto):
@@ -355,13 +355,13 @@ class Resevoir_split:
         
         self.Ytrain0 = self.SDEpath_split
         self.Ytrain = np.reshape(self.Ytrain0,[-1,self.Ytrain0.shape[-1]])
-        print(self.Ytrain.shape)
+        print(self.Ytrain.shape,end=', ')
         
         self.resevior_path_split = [np.reshape(np.array(self.sde.reservoir(p,'naive')),[-1,self.sde.dimensionR]) for p in self.BMpath_split]
         self.Xtrain0 = np.array([np.tensordot(x,y,axes = 0) \
                                 for x,y in zip(self.resevior_path_split, self.initial_split)])
         self.Xtrain = np.reshape(self.Xtrain0,[-1,self.Xtrain0.shape[-1]*self.Xtrain0.shape[-2]])  
-        print(self.Xtrain.shape)
+        print(self.Xtrain.shape,end=', ')
         
         
 
@@ -376,28 +376,29 @@ class Resevoir_split:
             # Note that Xtrain[:][0,:dimension]  == initial_split[:]
             Xtrain_sig = np.reshape(Xtrain_sig0,[-1,Xtrain_sig0.shape[-1]*Xtrain_sig0.shape[-2]]) 
             self.X_sig_train_all.append(Xtrain_sig)
-            print(np.shape(Xtrain_sig),end='')
+            print(np.shape(Xtrain_sig),end=', ')
         print('')
             
         
      
-    def train_split(self):
-        alphas=np.logspace(-10, -9, 2)
+    def train_split(self, alphas, verbose = False):
         cv = 10
         self.lm = linear_model.RidgeCV(alphas = alphas, cv = cv)
         self.model = self.lm.fit(self.Xtrain,self.Ytrain)
-        print('score: ',self.model.score(self.Xtrain,self.Ytrain))
-        print('max coefficient: ',np.max(np.abs(self.model.coef_)))
+        if verbose:
+            print('score: ',self.model.score(self.Xtrain,self.Ytrain))
+            print('max coefficient: ',np.max(np.abs(self.model.coef_)))
         self.lm_all = []
         self.model_all = []
         for Xtrain_sig in self.X_sig_train_all:
             lm_sig = linear_model.RidgeCV(alphas = alphas, cv = cv)
             model_sig = lm_sig.fit(Xtrain_sig,self.Ytrain)
-            print('score: ',model_sig.score(Xtrain_sig,self.Ytrain))
-            print('max coefficient: ',np.max(np.abs(model_sig.coef_)))
             self.lm_all.append(lm_sig)
             self.model_all.append(model_sig)
-            print('alpha： ',lm_sig.alpha_)
+            if verbose:
+                print('score: ',model_sig.score(Xtrain_sig,self.Ytrain))
+                print('max coefficient: ',np.max(np.abs(model_sig.coef_)))
+                print('alpha： ',lm_sig.alpha_)
     
     def plot_train_split(self,verbose = False):
         
@@ -441,7 +442,8 @@ class Resevoir_split:
             plt.show()
             
             
-    def plot_valid_split(self,validto,verbose = False):
+    def valid_split(self,validto, depth_learn):
+        self.depth_learn = depth_learn
         self.generalization = self.sde.path()
         self.BMpath_valid = self.generalization[0]
         
@@ -459,7 +461,7 @@ class Resevoir_split:
             Xdata_sig = sig_path_stream
             self.Xvalid_sig_all.append(Xdata_sig)
             
-
+    def plot_valid_split(self,validto, verbose = False):
         self.DIFF_valid = []
         self.ERROR_valid = []
         f,p=plt.subplots(1,2,figsize=(16,3))
