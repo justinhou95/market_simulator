@@ -8,6 +8,9 @@ torch.set_default_dtype(torch.float64)
 import signatory
 import Sig_method
 
+# Linear SDE 
+
+
 def get_B(label,dimensionBM,dimension):
     if label == 'diagnoal':
         B = np.zeros([dimensionBM,dimension,dimension])
@@ -36,7 +39,6 @@ def get_B(label,dimensionBM,dimension):
     print(B[0]@B[1] - B[1]@B[0])
     return B
 
-
 def semi_group_euler(state,increment,dt,B):
     dimension = state.shape[-1]
     I = np.eye(dimension)
@@ -45,7 +47,7 @@ def semi_group_euler(state,increment,dt,B):
     dX = V@state
     return dX
 
-class SDE_new:
+class SDE_linear:
     def __init__(self,timehorizon,initialvalue,dimension,dimensionBM,timesteps,B):
         self.timehorizon = timehorizon
         self.initialvalue = initialvalue # np array
@@ -77,6 +79,68 @@ class SDE_new:
             increment = BMpath[i+1,:] - BMpath[i,:]
             SDEpath[i+1,:] = sg(SDEpath[i,:],increment,self.dt,self.B)
         return SDEpath
+    
+    
+    
+# Nonlinear SDE 
+
+def vectorfieldoperator(state,increment):
+    d = np.shape(increment)[0]
+    N = np.shape(state)[0]
+    direction = np.zeros((N,1))
+    for i in range(d):
+        helper = np.zeros((N,1))
+        for j in range(N):
+            helper[j]=np.sin((j+1)*state[j,0])
+        direction=direction + helper*increment[i]
+    return direction
+
+def vectorfield2dsimple(state,increment):
+    return np.array([state[0],state[1]])*increment[0]\
+            +np.array([state[0],state[1]])*increment[1]
+
+def vectorfield2dlinear(state,increment):
+    return np.array([2.0*state[1],1.0*state[1]])*increment[0]\
+            +np.array([2.0*state[1],0.0*state[1]])*increment[1]
+
+def vectorfield2d(state,increment):
+    return np.array([(2.0*np.sqrt(state[1]**2))**0.7,1.0*state[1]])*increment[0]\
+            +np.array([(2.0*np.sqrt(state[1]**2))**0.7,0.0*state[1]])*increment[1]
+
+def vectorfield3d(state,increment):
+    return np.array([np.sin(5*state[0])*np.exp(-state[2]),np.cos(5*state[1]),-state[2]*state[1]])*increment[0]+np.array([np.sin(4*state[1]),np.cos(4*state[0]),-state[0]*state[1]])*increment[1]
+def vectorfield(state,increment):
+    return 5*np.exp(-state)*increment[0] + 5*np.cos(state)*increment[1]
+
+class SDE:
+    def __init__(self,timehorizon,initialvalue,dimension,dimensionBM,vectorfield,timesteps):
+        self.timehorizon = timehorizon
+        self.initialvalue = initialvalue # np array
+        self.dimension = dimension
+        self.dimensionBM = dimensionBM
+        self.vectorfield = vectorfield
+        self.timesteps = timesteps
+        self.dt = self.timehorizon/self.timesteps
+
+    def path(self):
+        BMpath = [np.zeros(self.dimensionBM)]
+        SDEpath = [self.initialvalue]
+        for i in range(self.timesteps):
+            helper = np.random.normal(0,np.sqrt(self.dt),self.dimensionBM)
+            BMpath = BMpath + [BMpath[-1]+helper]
+            SDEpath = SDEpath + [(SDEpath[-1]+self.vectorfield(SDEpath[-1],helper))]
+        self.BMpath = np.array(BMpath)
+        self.SDEpath = np.array(SDEpath)
+        return [self.BMpath, self.SDEpath]
+    
+    def plot(self):
+        f1,p1=plt.subplots(1,2,figsize=(16,3))
+        p1[0].plot(self.BMpath)
+        p1[0].set_title('BMpath')
+        p1[1].plot(self.SDEpath)
+        p1[1].set_title('SDEpath')
+        plt.show()
+          
     
     
    
