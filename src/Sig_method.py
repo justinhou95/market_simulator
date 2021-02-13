@@ -1,5 +1,5 @@
 import tensorflow as tf
-tf.keras.backend.set_floatx('float64')
+tf.keras.backend.set_floatx('float32')
 import numpy as np
 import scipy as sp
 from scipy.linalg import expm
@@ -65,38 +65,58 @@ def B_aug(B,depth):
 #     sig_path_stream = torch.cat([torch.ones([batch,length+1,1]),sig_path_stream],axis = 2)
 #     return sig_path_stream
 
+
+def sig_stream1(path,depth):                 # Unified depth 
+    path = torch.Tensor(path[None,:,:])
+    batch, length, channels = path.shape
+    length = length-1
+    index2word = index_to_word(channels, depth)
+    dim_sig = len(index2word)+1
+    sig_path_split = [signatory.signature(path[:,i:i+2,:], depth) for i in range(length)] 
+    add = sig_path_split[0]
+    sig_path_stream = [add[:,None,:]]
+    for i in range(len(sig_path_split)-1):
+        add = signatory.signature_combine(add, sig_path_split[i+1], channels, depth)
+        sig_path_stream.append(add[:,None,:])
+    sig_path_stream = torch.cat(sig_path_stream,axis = 1)
+    sig_path_stream = torch.cat([torch.zeros([batch,1,dim_sig-1]),sig_path_stream],axis = 1)
+    sig_path_stream = torch.cat([torch.ones([batch,length+1,1]),sig_path_stream],axis = 2)
+    return sig_path_stream
+
 def sig_stream2(path,depth_max):
     len_sequences, num_features = path.shape
-    sequence = tf.constant(path[None,:,:],dtype = 'float64')
+    sequence = tf.constant(path[None,:,:],dtype = 'float32')
     l_sig = GrowingSignature(depth_max)
     sig = l_sig(sequence)
     return sig
     
 
-def SDEfromSig(BMpath,initial,depth,B):
+def SDEfromSig(BMpath,initial,depth,B, growing = True):
     channels = BMpath.shape[-1]
     index2word = index_to_word(channels, depth)
-    
-    sig_path_stream = sig_stream2(BMpath,depth).numpy()
+    if growing is False:
+        sig_path_stream = sig_stream1(BMpath,depth).numpy()
+    else:
+        sig_path_stream = sig_stream2(BMpath,depth).numpy()
     
     BB = B_aug(B,depth)
     CC = np.array([M @ initial for M in BB])
     SDEpath_by_signature = np.dot(sig_path_stream,CC)
     return SDEpath_by_signature[0,:,:]
 
-def SDEfromSig_layer(BMpath,initial,depth,B):
-    channels = BMpath.shape[-1]
-    index2word = index_to_word(channels, depth)
+# def SDEfromSig_layer(BMpath,initial,depth,B):
+#     channels = BMpath.shape[-1]
+#     index2word = index_to_word(channels, depth)
     
-    sequence = tf.constant(BMpath[None,:,:],dtype = 'float64')
-    l_sig = GrowingSignature(depth)
-    sig = l_sig(sequence)
-    sig_path_stream = sig.numpy()
+#     sequence = tf.constant(BMpath[None,:,:],dtype = 'float32')
+#     l_sig = GrowingSignature(depth)
+#     sig = l_sig(sequence)
+#     sig_path_stream = sig.numpy()
     
-    BB = B_aug(B,depth)
-    CC = np.array([M @ initial for M in BB])
-    SDEpath_by_signature = np.dot(sig_path_stream,CC)
-    return SDEpath_by_signature[0,:,:]
+#     BB = B_aug(B,depth)
+#     CC = np.array([M @ initial for M in BB])
+#     SDEpath_by_signature = np.dot(sig_path_stream,CC)
+#     return SDEpath_by_signature[0,:,:]
 
 
 def sig_vectorfield(channels, depth):
@@ -151,9 +171,9 @@ class GrowingSignature(tf.keras.layers.Layer):
                                  bias=None, reverse=False, return_sequences=True, mask=None)
         sig = tf.reduce_sum(sig,axis = 2)
       
-        helper = tf.zeros(shape = [num_sequences, 1, self.num_functionals], dtype = 'float64')
+        helper = tf.zeros(shape = [num_sequences, 1, self.num_functionals], dtype = 'float32')
         sig = tf.concat([helper,sig],axis = 1)
-        helper =tf.ones(shape = [num_sequences, len_sequences, 1], dtype = 'float64')
+        helper =tf.ones(shape = [num_sequences, len_sequences, 1], dtype = 'float32')
         sig = tf.concat([helper,sig],axis = -1)
         return sig
         
@@ -173,7 +193,7 @@ def kernel_for_signature(num_components, num_features, num_levels, num_functiona
         start = int(m*(m-1)/2)
         for j,axis in enumerate(word):
             kernel[start + j,axis,i] = 1
-    return tf.constant(kernel, dtype = 'float64')
+    return tf.constant(kernel, dtype = 'float32')
 
 
 def low_rank_seq2tens(sequences, kernel, num_levels, embedding_order=1,\
