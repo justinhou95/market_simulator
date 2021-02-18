@@ -60,6 +60,8 @@ def Decoder(data_dim, cond_dim, latent_dim, hidden_dim):
     x = tfkl.concatenate([inputs_z, inputs_label], axis=1)
     x = tfkl.Dense(units = hidden_dim)(x)
     x = tfkl.LeakyReLU(alpha=0.3)(x)
+    x = tfkl.Dense(units = hidden_dim)(x)
+    x = tfkl.LeakyReLU(alpha=0.3)(x)
     x = tfkl.Dense(units = data_dim, activation = 'sigmoid')(x)
     return tfk.models.Model([inputs_z, inputs_label], x)
 
@@ -103,11 +105,11 @@ class EncoderSampler(tf.keras.Model):
         coeff_prior = coeff_all[:self.encoder.coeff_prior_dim]
         prior = self.sampler.prior(coeff_prior)
         posterior = self.sampler.posterior(coeff_all)
-        return [prior, posterior]
+        return [prior, posterior, coeff_all]
     
 
 class CVAE(tf.keras.Model):
-    def __init__(self, data_dim, cond_dim, latent_dim, hidden_dim, weight, decoder, encodersampler):
+    def __init__(self, data_dim, cond_dim, latent_dim, hidden_dim, weight, decoder, encodersampler, analytic):
         super(CVAE, self).__init__()
         self.latent_dim = latent_dim
         self.data_dim = data_dim
@@ -117,11 +119,12 @@ class CVAE(tf.keras.Model):
         self.encodersampler = encodersampler
         self.decoder = decoder
         self.K = 1
+        self.analytic = analytic
     
     def call(self, x_input):
         # encoder and sampler    
         inputs_data, inputs_cond = x_input
-        prior, posterior = self.encodersampler(x_input)
+        prior, posterior, coeff_all = self.encodersampler(x_input)
         z = posterior.sample(self.K)     # augmentation sampling
         z = tf.reshape(z,[-1,self.latent_dim])
         # decoder
@@ -130,7 +133,14 @@ class CVAE(tf.keras.Model):
         # compute loss
         inputs_data_expand = tf.tile(inputs_data, [self.K, 1]) # (K*Batch,d)
         decoded_loss = tf.reduce_sum(tf.square(x_output - inputs_data_expand), axis = -1)
-        latent_loss = posterior._log_prob(z) - prior._log_prob(z)
+        if self.analytic == True:
+            mn, scale_diag = coeff_all
+            log_var = 2*tf.math.log(scale_diag)
+            latent_loss = -0.5 * tf.reduce_sum(1. + log_var - tf.square(mn) - tf.exp(log_var), axis = -1, keepdims = True)
+            
+        else:
+            latent_loss = posterior._log_prob(z) - prior._log_prob(z)
+            
         loss = (1 - self.weight) * decoded_loss + self.weight * latent_loss 
         self.add_loss(tf.math.reduce_mean(loss))
         return x_output
@@ -144,7 +154,7 @@ class CVAE_circle(CVAE):
     def generate(self, condition):
         sample_dim =  condition.shape[0]
         x_inputs = [np.zeros([sample_dim,self.data_dim]),np.zeros([sample_dim,self.cond_dim])]
-        prior,_ = self.encodersampler(x_inputs)
+        prior,_,_ = self.encodersampler(x_inputs)
         randoms = prior.sample(sample_dim)
         outputs = self.decoder([tf.constant(randoms), tf.constant(condition)])
         return outputs 
