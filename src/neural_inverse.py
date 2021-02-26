@@ -31,16 +31,21 @@ class Dataset(torch.utils.data.Dataset):
 def data_prepare(X,y):
     batch = y.shape[0]
     if batch > 1:
-        split = int(batch/2)
-        X_train = X[:split]
-        y_train = y[:split]
-
-        X_test = X[split:]
-        y_test = y[split:]
-
-        ds = Dataset(torch.tensor(X_train,dtype = torch.float32))
+        ds = Dataset(torch.tensor(X,dtype = torch.float32))
         dl = torch.utils.data.DataLoader(ds, batch_size=64)
-        return ds, dl, X_train, y_train, X_test, y_test
+        return ds, dl
+    
+#         
+#         split = int(batch/2)
+#         X_train = X[:split]
+#         y_train = y[:split]
+
+#         X_test = X[split:]
+#         y_test = y[split:]
+
+#         ds = Dataset(torch.tensor(X_train,dtype = torch.float32))
+#         dl = torch.utils.data.DataLoader(ds, batch_size=64)
+#         return ds, dl, X_train, y_train, X_test, y_test
         
     else:
         dl = torch.tensor(X)[None,:,:]
@@ -100,16 +105,20 @@ def reconstruct_plot(model,X,y,order = 0):
         y_predict, X_predict = model(X)
         lo = criterion(X, X_predict)
     print('LOSS is: ', lo.numpy())
-    
     if batch > 1:
+        y_recover =  [(leadlag_inverse(y_id)[0] + leadlag_inverse(y_predict_id)).numpy() for y_id,y_predict_id in zip(y,y_predict)]
+        logsig_recover = signatory.logsignature(y_predict, order)
+        
         plt.figure(figsize=(16, 2))
         for i in range(4):
             plt.subplot(1, 4, i + 1)
             idx = np.random.randint(0,batch)
-            y_recover = leadlag_inverse(y[idx])[0] + leadlag_inverse(y_predict[idx])
             y_true = leadlag_inverse(y[idx])
             plt.plot(y_true)
-            plt.plot(y_recover)
+            plt.plot(y_recover[idx])
+        plt.show()
+        return y_recover, logsig_recover
+            
 #             K = 1
 #             sigma = 1
 #             time = np.linspace(0,1,y_true.shape[0])
@@ -120,14 +129,45 @@ def reconstruct_plot(model,X,y,order = 0):
 #             if i == 3:
 #                 plt.legend(['True path', 'Neural path'] + ['True hedge', 'Neural hedge'])
             
-            
+           
     else:
         logsig_recover = signatory.logsignature(y_predict, order)
-#         plt.plot(leadlag_inverse(y[0]))
         y_recover = leadlag_inverse(y[0])[0] + leadlag_inverse(y_predict[0])
+#         plt.plot(leadlag_inverse(y[0]))
 #         plt.plot(y_recover)
         return y_recover, logsig_recover 
-    plt.show()
     
     
+def inverse_single_path(path0, order, net0 = None):
+    N = path0.shape[1]-1
+    path_torch = leadlag(torch.tensor(path0)[:,:,0])
+    path_leadlag = path_torch.numpy()
+    logsig = signatory.logsignature(path_torch, order)
+    X0 = logsig.numpy()
+    y0 = path_leadlag
+    dl = data_prepare(X0,y0)
+    if not net0:
+        net0 = Net(X0.shape[-1],order,N)
+    net0.train_net(dl,1000)
+    y_recover, logsig_recover = reconstruct_plot(net0, X0, y0, order)
+    return net0, y_recover, logsig_recover
+    
+def inverse_multiple_path(path, order, net = None, train = True):
+    N = path.shape[1]-1
+    path_torch = leadlag(torch.tensor(path)[:,:,0])
+    path_leadlag = path_torch.numpy()
+    logsig = signatory.logsignature(path_torch, order)
+    X = logsig.numpy()
+    y = path_leadlag
+    if not net:
+        ds, dl = data_prepare(X,y)
+        net = Net(X.shape[-1],order,N)
+        net.train_net(dl,1000)
+    elif train:
+        ds, dl = data_prepare(X,y)
+        net.train_net(dl,1000)
+     
+    y_recover, logsig_recover = reconstruct_plot(net, X, y, order)
+
+    return y_recover, logsig_recover, net
     

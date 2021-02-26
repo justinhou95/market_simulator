@@ -1,0 +1,105 @@
+\begin{thebibliography}{10}
+
+\bibitem{boedihardjo2016signature}
+{\sc Boedihardjo, H., Geng, X., Lyons, T., and Yang, D.}
+\newblock The signature of a rough path: uniqueness.
+\newblock {\em Advances in Mathematics 293\/} (2016), 720--737.
+
+\bibitem{bonnier2020adapted}
+{\sc Bonnier, P., Liu, C., and Oberhauser, H.}
+\newblock Adapted topologies and higher rank signatures.
+\newblock {\em arXiv preprint arXiv:2005.08897\/} (2020).
+
+\bibitem{chevyrev2018signature}
+{\sc Chevyrev, I., and Oberhauser, H.}
+\newblock Signature moments to characterize laws of stochastic processes.
+\newblock {\em arXiv preprint arXiv:1810.10971\/} (2018).
+
+\bibitem{foster2020optimal}
+{\sc Foster, J., Lyons, T., and Oberhauser, H.}
+\newblock An optimal polynomial approximation of brownian motion.
+\newblock {\em SIAM Journal on Numerical Analysis 58}, 3 (2020), 1393--1421.
+
+\bibitem{1993Probability}
+{\sc Freeman, J.}
+\newblock Probability metrics and the stability of stochastic models.
+\newblock {\em Journal of the Operational Research Society 43}, 9 (1993),
+  923--923.
+
+\bibitem{friz2020course}
+{\sc Friz, P.~K., and Hairer, M.}
+\newblock {\em A course on rough paths}.
+\newblock Springer, 2020.
+
+\bibitem{kidger2021neural}
+{\sc Kidger, P., Foster, J., Li, X., Oberhauser, H., and Lyons, T.}
+\newblock Neural sdes as infinite-dimensional gans.
+\newblock {\em arXiv preprint arXiv:2102.03657\/} (2021).
+
+\bibitem{kidger2020signatory}
+{\sc Kidger, P., and Lyons, T.}
+\newblock Signatory: differentiable computations of the signature and
+  logsignature transforms, on both cpu and gpu.
+\newblock {\em arXiv preprint arXiv:2001.00706\/} (2020).
+
+\bibitem{kidger2020neural}
+{\sc Kidger, P., Morrill, J., Foster, J., and Lyons, T.}
+\newblock Neural controlled differential equations for irregular time series.
+\newblock {\em arXiv preprint arXiv:2005.08926\/} (2020).
+
+\bibitem{kiraly2019kernels}
+{\sc Kir{\'a}ly, F.~J., and Oberhauser, H.}
+\newblock Kernels for sequentially ordered data.
+\newblock {\em Journal of Machine Learning Research 20}, 31 (2019), 1--45.
+
+\bibitem{levin2013learning}
+{\sc Levin, D., Lyons, T., and Ni, H.}
+\newblock Learning from the past, predicting the statistics for the future,
+  learning an evolving system.
+\newblock {\em arXiv preprint arXiv:1309.0260\/} (2013).
+
+\bibitem{liao2019learning}
+{\sc Liao, S., Lyons, T., Yang, W., and Ni, H.}
+\newblock Learning stochastic differential equations using rnn with log
+  signature features.
+\newblock {\em arXiv preprint arXiv:1908.08286\/} (2019).
+
+\bibitem{lyons2014rough}
+{\sc Lyons, T.}
+\newblock Rough paths, signatures and the modelling of functions on streams.
+\newblock {\em arXiv preprint arXiv:1405.4537\/} (2014).
+
+\bibitem{lyons1998differential}
+{\sc Lyons, T.~J.}
+\newblock Differential equations driven by rough signals.
+\newblock {\em Revista Matem{\'a}tica Iberoamericana 14}, 2 (1998), 215--310.
+
+\bibitem{lyons2007differential}
+{\sc Lyons, T.~J., Caruana, M., and L{\'e}vy, T.}
+\newblock {\em Differential equations driven by rough paths}.
+\newblock Springer, 2007.
+
+\bibitem{reutenauer2003free}
+{\sc Reutenauer, C.}
+\newblock Free lie algebras.
+\newblock In {\em Handbook of algebra}, vol.~3. Elsevier, 2003, pp.~887--903.
+
+\bibitem{toth2020seq2tens}
+{\sc Toth, C., Bonnier, P., and Oberhauser, H.}
+\newblock Seq2tens: An efficient representation of sequences by low-rank tensor
+  projections.
+\newblock {\em arXiv preprint arXiv:2006.07027\/} (2020).
+
+\bibitem{toth2019variational}
+{\sc Toth, C., and Oberhauser, H.}
+\newblock Variational gaussian processes with signature covariances.
+\newblock {\em arXiv preprint arXiv:1906.08215\/} (2019).
+
+\bibitem{toth2020bayesian}
+{\sc Toth, C., and Oberhauser, H.}
+\newblock Bayesian learning from sequential data using gaussian processes with
+  signature covariances.
+\newblock In {\em International Conference on Machine Learning\/} (2020), PMLR,
+  pp.~9548--9560.
+
+\end{thebibliography}

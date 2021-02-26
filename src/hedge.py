@@ -1,5 +1,6 @@
 from scipy.stats import norm
 import numpy as np
+import matplotlib.pyplot as plt
 
 def BlackScholes(tau, S, K, sigma, index = None):
     d1=np.log(S/K)/sigma/np.sqrt(tau)+0.5*sigma*np.sqrt(tau)
@@ -30,3 +31,22 @@ def delta_hedge(K, sigma, time, S):   # special for T = 1 and Bt = t
     for i in range(N):
         V[i+1] = V[i] + B_holding[i]*dt + S_holding[i]*(S[i+1]-S[i])
     return C, V
+
+def delta_comapre(K,sigma,time,path0,y_recover0,y_recover1):
+    C, V = delta_hedge(K, sigma, time, path0[0,:,0])
+    C_recover0, V_recover0 = delta_hedge(K, sigma, time, y_recover0.numpy())
+    C_recover1, V_recover1 = delta_hedge(K, sigma, time, y_recover1)
+
+    plt.figure(figsize=(12, 3))
+    plt.subplot(1, 2, 1)
+    plt.plot(path0[0])
+    plt.plot(y_recover0)
+    plt.plot(y_recover1)
+    plt.legend(['True path', 'Neural path', 'Evolution path'])
+    plt.subplot(1, 2, 2)
+    plt.plot(V)
+    plt.plot(V_recover0)
+    plt.plot(V_recover1)
+    plt.legend(['True hedge', 'Neural hedge', 'Evolution hedge'])
+    plt.show()
+    return V_recover0, V_recover1
