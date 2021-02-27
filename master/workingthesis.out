@@ -13,11 +13,11 @@
 \BOOKMARK [1][-]{section.3.4}{Discrete\040signature\040feature}{chapter.3}% 13
 \BOOKMARK [2][-]{subsection.3.4.1}{Kernel\040trick}{section.3.4}% 14
 \BOOKMARK [1][-]{section.3.5}{Low-rank-signature}{chapter.3}% 15
-\BOOKMARK [0][-]{chapter.4}{Generative\040model}{}% 16
-\BOOKMARK [1][-]{section.4.1}{Variational\040Autoencoder}{chapter.4}% 17
-\BOOKMARK [1][-]{section.4.2}{Generative\040adversarial\040network}{chapter.4}% 18
-\BOOKMARK [1][-]{section.4.3}{Comparison}{chapter.4}% 19
-\BOOKMARK [2][-]{subsection.4.3.1}{Signature\040Kernel}{section.4.3}% 20
+\BOOKMARK [0][-]{chapter.4}{Variational\040Autoencoders}{}% 16
+\BOOKMARK [1][-]{section.4.1}{Variational\040autoencoders}{chapter.4}% 17
+\BOOKMARK [2][-]{subsection.4.1.1}{Variational\040inference}{section.4.1}% 18
+\BOOKMARK [2][-]{subsection.4.1.2}{Reparameterization\040Trick}{section.4.1}% 19
+\BOOKMARK [1][-]{section.4.2}{Variations\040of\040VAE}{chapter.4}% 20
 \BOOKMARK [0][-]{chapter.5}{Main\040method}{}% 21
 \BOOKMARK [1][-]{section.5.1}{Time\040series\040processing}{chapter.5}% 22
 \BOOKMARK [1][-]{section.5.2}{Generative\040model\040with\040heavy\040tail}{chapter.5}% 23
