@@ -1,5 +1,15 @@
 \begin{thebibliography}{10}
 
+\bibitem{abiri2019advantage}
+{\sc Abiri, N., and Ohlsson, M.}
+\newblock The advantage of using student's t-priors in variational
+  autoencoders.
+
+\bibitem{abiri2020variational}
+{\sc Abiri, N., and Ohlsson, M.}
+\newblock Variational auto-encoders with student's t-prior.
+\newblock {\em arXiv preprint arXiv:2004.02581\/} (2020).
+
 \bibitem{boedihardjo2016signature}
 {\sc Boedihardjo, H., Geng, X., Lyons, T., and Yang, D.}
 \newblock The signature of a rough path: uniqueness.
@@ -10,10 +20,38 @@
 \newblock Adapted topologies and higher rank signatures.
 \newblock {\em arXiv preprint arXiv:2005.08897\/} (2020).
 
+\bibitem{buehler2020data}
+{\sc Buehler, H., Horvath, B., Lyons, T., Perez~Arribas, I., and Wood, B.}
+\newblock A data-driven market simulator for small data environments.
+\newblock {\em Available at SSRN 3632431\/} (2020).
+
 \bibitem{chevyrev2018signature}
 {\sc Chevyrev, I., and Oberhauser, H.}
 \newblock Signature moments to characterize laws of stochastic processes.
 \newblock {\em arXiv preprint arXiv:1810.10971\/} (2018).
+
+\bibitem{chwialkowski2016kernel}
+{\sc Chwialkowski, K., Strathmann, H., and Gretton, A.}
+\newblock A kernel test of goodness of fit.
+\newblock In {\em International conference on machine learning\/} (2016), PMLR,
+  pp.~2606--2615.
+
+\bibitem{cont2001empirical}
+{\sc Cont, R.}
+\newblock Empirical properties of asset returns: stylized facts and statistical
+  issues.
+
+\bibitem{flint2016discretely}
+{\sc Flint, G., Hambly, B., and Lyons, T.}
+\newblock Discretely sampled signals and the rough hoff process.
+\newblock {\em Stochastic Processes and their Applications 126}, 9 (2016),
+  2593--2614.
+
+\bibitem{fortuin2020gp}
+{\sc Fortuin, V., Baranchuk, D., R{\"a}tsch, G., and Mandt, S.}
+\newblock Gp-vae: Deep probabilistic time series imputation.
+\newblock In {\em International Conference on Artificial Intelligence and
+  Statistics\/} (2020), PMLR, pp.~1651--1661.
 
 \bibitem{foster2020optimal}
 {\sc Foster, J., Lyons, T., and Oberhauser, H.}
@@ -31,6 +69,29 @@
 \newblock {\em A course on rough paths}.
 \newblock Springer, 2020.
 
+\bibitem{gretton2012kernel}
+{\sc Gretton, A., Borgwardt, K.~M., Rasch, M.~J., Sch{\"o}lkopf, B., and Smola,
+  A.}
+\newblock A kernel two-sample test.
+\newblock {\em The Journal of Machine Learning Research 13}, 1 (2012),
+  723--773.
+
+\bibitem{gretton2009fast}
+{\sc Gretton, A., Fukumizu, K., Harchaoui, Z., and Sriperumbudur, B.~K.}
+\newblock A fast, consistent kernel two-sample test.
+\newblock In {\em NIPS\/} (2009), vol.~23, pp.~673--681.
+
+\bibitem{higgins2016beta}
+{\sc Higgins, I., Matthey, L., Pal, A., Burgess, C., Glorot, X., Botvinick, M.,
+  Mohamed, S., and Lerchner, A.}
+\newblock beta-vae: Learning basic visual concepts with a constrained
+  variational framework.
+
+\bibitem{jitkrittum2016interpretable}
+{\sc Jitkrittum, W., Szab{\'o}, Z., Chwialkowski, K., and Gretton, A.}
+\newblock Interpretable distribution features with maximum testing power.
+\newblock {\em arXiv preprint arXiv:1605.06796\/} (2016).
+
 \bibitem{kidger2021neural}
 {\sc Kidger, P., Foster, J., Li, X., Oberhauser, H., and Lyons, T.}
 \newblock Neural sdes as infinite-dimensional gans.
@@ -46,6 +107,16 @@
 {\sc Kidger, P., Morrill, J., Foster, J., and Lyons, T.}
 \newblock Neural controlled differential equations for irregular time series.
 \newblock {\em arXiv preprint arXiv:2005.08926\/} (2020).
+
+\bibitem{kingma2013auto}
+{\sc Kingma, D.~P., and Welling, M.}
+\newblock Auto-encoding variational bayes.
+\newblock {\em arXiv preprint arXiv:1312.6114\/} (2013).
+
+\bibitem{kingma2019introduction}
+{\sc Kingma, D.~P., and Welling, M.}
+\newblock An introduction to variational autoencoders.
+\newblock {\em arXiv preprint arXiv:1906.02691\/} (2019).
 
 \bibitem{kiraly2019kernels}
 {\sc Kir{\'a}ly, F.~J., and Oberhauser, H.}
@@ -83,6 +154,26 @@
 {\sc Reutenauer, C.}
 \newblock Free lie algebras.
 \newblock In {\em Handbook of algebra}, vol.~3. Elsevier, 2003, pp.~887--903.
+
+\bibitem{sejdinovic2013equivalence}
+{\sc Sejdinovic, D., Sriperumbudur, B., Gretton, A., and Fukumizu, K.}
+\newblock Equivalence of distance-based and rkhs-based statistics in hypothesis
+  testing.
+\newblock {\em The Annals of Statistics\/} (2013), 2263--2291.
+
+\bibitem{sohn2015learning}
+{\sc Sohn, K., Lee, H., and Yan, X.}
+\newblock Learning structured output representation using deep conditional
+  generative models.
+\newblock {\em Advances in neural information processing systems 28\/} (2015),
+  3483--3491.
+
+\bibitem{sriperumbudur2010hilbert}
+{\sc Sriperumbudur, B.~K., Gretton, A., Fukumizu, K., Sch{\"o}lkopf, B., and
+  Lanckriet, G.~R.}
+\newblock Hilbert space embeddings and metrics on probability measures.
+\newblock {\em The Journal of Machine Learning Research 11\/} (2010),
+  1517--1561.
 
 \bibitem{toth2020seq2tens}
 {\sc Toth, C., Bonnier, P., and Oberhauser, H.}

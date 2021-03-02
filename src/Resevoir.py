@@ -182,8 +182,15 @@ class Resevoir_split:
             for j,Y_pre in enumerate(Y_predict_sig_all + [Y_predict]):
                 p[i].plot(Y_pre[:,i]) 
             p[i].plot(Y[:,i])
+            p[i].grid()
             p[i].legend(self.depth_learn +  ['Res','True'], loc = 'upper left')
-        plt.suptitle(name + 'path')
+            p[0].title.set_text('Stimulated path: $X^{1}_{t}$')
+            p[1].title.set_text('Stimulated path: $X^{2}_{t}$')
+            if name == 'all':
+                p[i].vlines(1000,min(Y_pre[:,i].min(),Y[:,i].min())-0.1,min(Y_pre[:,i].max(),Y[:,i].max())+0.1,'r')
+                plt.suptitle('Training path')
+            else:
+                plt.suptitle('Testing path')
         plt.show()
         if verbose == True:
             f,p=plt.subplots(1,2,figsize=(16,3))
@@ -196,7 +203,12 @@ class Resevoir_split:
             for i in range(2):
                 p[i].plot(self.depth_learn, ERROR[:-1,i],'o-')
                 p[i].set_yscale('log')
-            plt.suptitle(name + 'error')
+                p[i].set_xlabel('Order')
+                p[i].set_ylabel('Uniform Error')
+                p[i].grid()
+            p[0].title.set_text('Uniform error: $X^{1}_{t}$')
+            p[1].title.set_text('Uniform error: $X^{2}_{t}$')
+            plt.suptitle('Uniform error of testing path')
             plt.show()
             
     def plot_all(self,plot = False, verbose = False):     

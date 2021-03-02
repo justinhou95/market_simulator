@@ -33,6 +33,10 @@ def get_B(label,dimensionBM,dimension):
         B[0,1,1] = 1
         B[1,0,1] = 2
         B[1,1,1] = 0
+    elif label == 'special':
+        B1 = [[1,2],[3,4]]
+        B2 = [[4,3],[2,1]]
+        B = np.array([B1,B2])/10
     print(label)
     print(B)
     print('commutability')
@@ -139,6 +143,8 @@ class SDE:
         p1[0].set_title('BMpath')
         p1[1].plot(self.SDEpath)
         p1[1].set_title('SDEpath')
+        p1[0].grid()
+        p1[1].grid()
         plt.show()
           
     
