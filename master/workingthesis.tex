@@ -85,7 +85,7 @@
 
 \chapter{Financial times-series stimulation}
 \section{Challenges in financial scenario}
-\section{Stylised facts and evaluation of similarity}
+\section{Stylized facts and evaluation of similarity}
 \section{Classical and modern model}
 
 \chapter{Signature feature}
@@ -207,7 +207,7 @@ If we add time as an additional strictly increasing coordinate into path ie. $\o
   \end{equation}
 \end{theorem}
 \begin{proof}
-  Proof relies on the Stone-Weierstrass theorem and the shuffle product property of the signature detailed in appendx, see \cite{liao2019learning}.
+  Proof relies on the Stone-Weierstrass theorem and the shuffle product property of the signature detailed in appendix, see \cite{liao2019learning}.
 \end{proof}
 
 
@@ -291,7 +291,7 @@ Instead of viewing signature as a static object, we can consider signature strea
   which implies that the solution of controlled SDE could be written as a linear function on signature stream of control path. This implies that signature stream is a promising feature for controlled ODE.
 \end{example}
 \begin{remark}
-  Similar result holds for smooth vector field with some additional boundedness assumption and the proof is in alignment with the argument above, see \cite{liao2019learning}. 
+  Similar result holds for smooth vector field with some additional boundness assumption and the proof is in alignment with the argument above, see \cite{liao2019learning}. 
 \end{remark}
 Despite nice properties as feature map, signature feature suffers from dimension explosion w.r.t truncation order. Consider a path $X \in \mathcal{C}^{1}_{0}([0,T],\R^{d})$ and the truncated signature of $X$ up to order $n$ in $\mathbf{T}^{(n)}(\R^{d}) \subseteq \bigoplus_{k\leq n} (\R^{d})^{\otimes k} $ which has dimension $1 + d + \cdots + d^{n} = \frac{d^{n+1} - d}{d-1}$ growing exponentially w.r.t the truncation order $n$. Therefore, we would like to explore some low-rank approximations of signature feature. 
 \section{Log-signature}
@@ -517,7 +517,7 @@ In particular, if $m = 1$ we call it growing discrete signature
     See Theorem 5 in \cite{kiraly2019kernels}.
   \end{proof}
   \begin{remark}
-    If we let $X$ to be the Brownian motion (not in $\mathcal{C}^{1}_{0}$), the growing discrete signature converges to the signature defined with Ito integral, while the high order discrete signature converges to the signature defined with Stratonovich integral. More generally, if we want to approximate a geometric $p$-rough path, we need high order discrete siganture at least order $\lfloor p \rfloor$, see \cite{kiraly2019kernels}.
+    If we let $X$ to be the Brownian motion (not in $\mathcal{C}^{1}_{0}$), the growing discrete signature converges to the signature defined with Ito integral, while the high order discrete signature converges to the signature defined with Stratonovich integral. More generally, if we want to approximate a geometric $p$-rough path, we need high order discrete signature at least order $\lfloor p \rfloor$, see \cite{kiraly2019kernels}.
   \end{remark}
   \subsection{Kernel trick}
   In the same fashion of horner algorithm 
@@ -694,7 +694,7 @@ In some case, the KL-divergence term even has a analytic formula.
   \end{equation}
 \end{example}
 
-% If we also choose the approximating posterior $q_{\phi}(z|x)$ be a simple distribution parametrized by neural network i.e. 
+% If we also choose the approximating posterior $q_{\phi}(z|x)$ be a simple distribution parameterized by neural network i.e. 
 % \begin{equation}
 %   q_{\phi}(z|x) = q(z | \mathbf{NN}(x))
 % \end{equation}
@@ -773,16 +773,16 @@ All variations of VAEs above are designed for samples and latent variables on Eu
 
 
 \chapter{Market Generator}
-In this chapter, we combine signature features and variational autoencoders introduced above to construct a market generator. Recall our problem setting: By observing one realisation of stochastic process, we wish to infer the distribution of the process and stimulate paths under the learnt distribution. For example, given the S\&P index of last 12 months, we wish to construct market generator which generates possible paths of S\&P index of next months for us, and hopefully generating paths of S\&P index to the next two months. Our algorithm can be subdivided into the following five parts, of which we present a brief overview below:
+In this chapter, we combine signature features and variational autoencoders introduced above to construct a market generator. Recall our problem setting: By observing one realization of stochastic process, we wish to infer the distribution of the process and stimulate paths under the learnt distribution. For example, given the S\&P index of last 12 months, we wish to construct market generator which generates possible paths of S\&P index of next months for us, and hopefully generating paths of S\&P index to the next two months. Our algorithm can be subdivided into the following five parts, of which we present a brief overview below:
 \begin{enumerate}[start=1,label={( Step \arabic*):}]
-  \item \textbf{Time series splitting:} Split single realisation of path $(x_{0:N})$ to multiple subpaths $(x_{i:i+n})_{i=1}^{m}$. This subdivision helps to generate multiple samples for training. 
-  \item \textbf{Path to signature features:} Applying the signature feature map to $m$ subpaths $(x_{i:i+n})_{i=1}$ gives $m$ samples on $\R^{d}$, where $d$ depends on the choice of siganture feature map.   
-  \item \textbf{Variational autoencoder on signature features: } Train a variational autoencoder on the signature feature space and generate samples on the siganture feature space.  
+  \item \textbf{Time series splitting:} Split single realization of path $(x_{0:N})$ to multiple subpaths $(x_{i:i+n})_{i=1}^{m}$. This subdivision helps to generate multiple samples for training. 
+  \item \textbf{Path to signature features:} Applying the signature feature map to $m$ subpaths $(x_{i:i+n})_{i=1}$ gives $m$ samples on $\R^{d}$, where $d$ depends on the choice of signature feature map.   
+  \item \textbf{Variational autoencoder on signature features: } Train a variational autoencoder on the signature feature space and generate samples on the signature feature space.  
   \item \textbf{Signature features to path:} Inverse samples on signature feature space to samples on paths space. 
   \item \textbf{Evaluation of model:} Compare the distribution of generated paths to true paths. 
 \end{enumerate}
 \section{Time series splitting}
-In many generative machine learning tasks, such as images generating, abundant of data points are available for training. However, for financial time series, scarcity of data can be a systemic problem due to the following reasons. Firstly, financial time series data has time inconsistency problem. Time inconsistency problem is well studied in behavioral economics where preferences change from time to time. Inconsistency in dynamic implies that if we use very old data, we are actually using data from a different dynamic, in another word, samples from a different distribution \cite{cont2001empirical}. This is not a problem in image classification because a image of cat drawn 100 years before also looks like a cat today, but the dynamic of stocks market 100 years before can be greatly different from the one today. The second problem is that financial data usually suffers from roughness in paths. Therefore, a frequent observation results in a rougher path which leads to noise as well as difficulties in stable numerical methods. The last problem is that usually we only have one realisation of path in financial scenario, unlike speech generating multipe experiments can be conducted. Therefore, if we need i.i.d samples, we need to split the path and assume further stationary condition to guarantee the independence among samples. If we consider stock prices under Black-scholes model
+In many generative machine learning tasks, such as images generating, abundant of data points are available for training. However, for financial time series, scarcity of data can be a systemic problem due to the following reasons. Firstly, financial time series data has time inconsistency problem. Time inconsistency problem is well studied in behavioral economics where preferences change from time to time. Inconsistency in dynamic implies that if we use very old data, we are actually using data from a different dynamic, in another word, samples from a different distribution \cite{cont2001empirical}. This is not a problem in image classification because a image of cat drawn 100 years before also looks like a cat today, but the dynamic of stocks market 100 years before can be greatly different from the one today. The second problem is that financial data usually suffers from roughness in paths. Therefore, a frequent observation results in a rougher path which leads to noise as well as difficulties in stable numerical methods. The last problem is that usually we only have one realization of path in financial scenario, unlike speech generating multiple experiments can be conducted. Therefore, if we need i.i.d samples, we need to split the path and assume further stationary condition to guarantee the independence among samples. If we consider stock prices under Black-scholes model
 \begin{equation*}
   S_{t} = S_{0}\exp\bigg\{ \big(\mu - \frac{\sigma^2}{2})t + \sigma W_{t}\bigg\}
 \end{equation*}
@@ -794,36 +794,36 @@ then we consider the difference of log return
 \begin{equation*}
   X_{t+\triangle t} - X_{t} =   \big(\mu - \frac{\sigma^2}{2})\triangle t + \sigma (W_{t+\triangle t} - W_{t}).
 \end{equation*}
-Since Brownian motion has increment increment, splitting the difference of log return gives i.i.d samples even we choose length of subpath to be 1. Inspired by this idea, we preprocess the stock price by taking the difference of log return before splitting. Given the preprocessed path, the longer we choose the length of subpath, fewer samples we have. The more samples we have, the more we violate the independence. Therefore, there is actually a tradeoff in the choice of length of subpaths. In our experiments, we subdivide the time seires into intervals: (i) 1 day (ii) 1 week (iii) 1 month. Mathematically speaking, given a path $x_{0:N}$ of with $N+1$ times observation. 
+Since Brownian motion has increment increment, splitting the difference of log return gives i.i.d samples even we choose length of subpath to be 1. Inspired by this idea, we preprocess the stock price by taking the difference of log return before splitting. Given the preprocessed path, the longer we choose the length of subpath, fewer samples we have. The more samples we have, the more we violate the independence. Therefore, there is actually a tradeoff in the choice of length of subpaths. In our experiments, we subdivide the time series into intervals: (i) 1 day (ii) 1 week (iii) 1 month. Mathematically speaking, given a path $x_{0:N}$ of with $N+1$ times observation. 
 \begin{equation*}
   x_{i} = x_{t_{i-1}:t_{i}}, \quad i = 1,\cdots,m
 \end{equation*}
-where $0 = t_{0} \leq t_{1} \leq \cdots \leq t_{m+1} = N$. Note that this is not a equal length division since days in months different and there might be some days data missing. However, this inconsistency in division as well as missing data is not a problem to our model, because we will later consider the log-signature feature of each subpath. The dimension of log-siganture only depends on our truncation order and the calculation of log-signature is robust to missing data. 
+where $0 = t_{0} \leq t_{1} \leq \cdots \leq t_{m+1} = N$. Note that this is not a equal length division since days in months different and there might be some days data missing. However, this inconsistency in division as well as missing data is not a problem to our model, because we will later consider the log-signature feature of each subpath. The dimension of log-signature only depends on our truncation order and the calculation of log-signature is robust to missing data. 
 \section{Path to signature features}
 After splitting path to samples of subpaths, we apply a feature map on each subpath and here our feature map is the log-signature. We choose log-signature motivated by the following reasons
 \begin{enumerate}[(i)]
-  \item Siganture type features stores path information in an efficient way by Example \ref{lcde}.
-  \item Expected normalized signature characterise the law of stochastic process by Corollary \ref{equalequal}.
+  \item Signature type features stores path information in an efficient way by Example \ref{lcde}.
+  \item Expected normalized signature characterize the law of stochastic process by Corollary \ref{equalequal}.
   \item Signature can be directly used to compute signature kernel evaluating the MMD distance between distribution on paths by \eqref{eq348}.
-  \item log-sigature has the same information as sigature but store them in a more compact way, by Proposition \ref{logsignatureorder}. 
+  \item log-signature has the same information as signature but store them in a more compact way, by Proposition \ref{logsignatureorder}. 
   \item The image of signature space is not a linear subspace of tensor space but the range of truncated log-signature is the truncated Lie series over $E$ up to the same order by Theorem \ref{truncatedLieseries}.
   \item Tensor-algebra exponential of the generated log-signatures recover the group-like (shuffle product) property of signature, see \cite{lyons2007differential}.
-  \item the numerical log-signature is more robust than siganture, by Example  
+  \item the numerical log-signature is more robust than signature, by Example  
   \item signature feature eliminates pricing and hedging ambiguities problem addressed in and signature can be directly used for pricing, see.
 \end{enumerate} 
-We additional apply a lead-lag transformation \cite{flint2016discretely} to path before computing the log-signature features of the subpath. This is because the signature of a path after lead-lag transformation helps to capture the volatility of a path, which is of vital imporatance in finance. 
+We additional apply a lead-lag transformation \cite{flint2016discretely} to path before computing the log-signature features of the subpath. This is because the signature of a path after lead-lag transformation helps to capture the volatility of a path, which is of vital importance in finance. 
 
 \section{Variational autoencoder on signature features}
 Given samples on log-signature space denoted by $X_{i}$, we build a generative model and train it with samples. Arguably, the most popular generative models are GANs and VAEs. We choose VAEs motivated by the following considerations. 
 \begin{enumerate}[(i)]
   \item VAEs require considerably less data for training than GANs 
-  \item VAEs are in genral more stable in training than GANs
+  \item VAEs are in general more stable in training than GANs
   \item VAEs are less prone to overfitting than GANs
 \end{enumerate}
-Here we use conditional VAEs choosing the sample of subpath right before as condition, i.e. $c_{i} = X_{i-1}$. Moreover, we consider student-t prior in order to recover a heavy-tail distribution observed commonly in financial data. Also, we optimize the $\beta$-ELBO loss in training to balance the reconstruction loss and KL-divergence. Details of network structure are dicussed with numerical results in chapter 4. 
+Here we use conditional VAEs choosing the sample of subpath right before as condition, i.e. $c_{i} = X_{i-1}$. Moreover, we consider student-t prior in order to recover a heavy-tail distribution observed commonly in financial data. Also, we optimize the $\beta$-ELBO loss in training to balance the reconstruction loss and KL-divergence. Details of network structure are discussed with numerical results in chapter 4. 
 
 \section{Signature features to path}
-After the training of model, we generate samples on the log-sigature space. Now we need to inverse a log-signature to a path. The signature of a path uniquely determines the path itself up to tree-like equivalence but reverting siganture to path is a computationally a highly non-trivial task and currently a topic of active research. In ,they develop an evolutionaty algorithm by mimicking to some extent biological evolution. They start with an initial population of random paths, and iteratively select the paths whose signatures are closest to the target signature, and breed these paths and introduce mutations to generate a new generation of paths until we get a population of paths whose signature are close to the target signature. However, the revolution algorithm is very slow in optimization and reverting task of each signature need a restart of the evolution procedure. Therefore, we develop a new neural network based solution to inverse the siganture. Our method is much faster than evolution algorithm and can be trained to deal with a collection of signatures once trained. Our approach is to construct an autoencoder with encoder be a neural network and decoder be the log-siganture transformation. We train our autoencoder by minimizing the $L^{2}$ error between input log-signature with the output of autoencoder. Once trained, we consider the encoder as a good inverse function of log-signature. This method can be trained w.r.t one samples in order to reverse this single sample in log-signature space. Moreover, the parameter in encoder does not change too much when we are training it to reverse different samples. Therefore, we can leverage the parameter trained before to start our training for the next sample, which accelerates the training procedure. Also, we can pre-trained the model on a collection of log-siganture and use the pre-trained model to inverse a sample without training.  
+After the training of model, we generate samples on the log-signature space. Now we need to inverse a log-signature to a path. The signature of a path uniquely determines the path itself up to tree-like equivalence but reverting signature to path is a computationally a highly non-trivial task and currently a topic of active research. In ,they develop an evolutionary algorithm by mimicking to some extent biological evolution. They start with an initial population of random paths, and iteratively select the paths whose signatures are closest to the target signature, and breed these paths and introduce mutations to generate a new generation of paths until we get a population of paths whose signature are close to the target signature. However, the revolution algorithm is very slow in optimization and reverting task of each signature need a restart of the evolution procedure. Therefore, we develop a new neural network based solution to inverse the signature. Our method is much faster than evolution algorithm and can be trained to deal with a collection of signatures once trained. Our approach is to construct an autoencoder with encoder be a neural network and decoder be the log-signature transformation. We train our autoencoder by minimizing the $L^{2}$ error between input log-signature with the output of autoencoder. Once trained, we consider the encoder as a good inverse function of log-signature. This method can be trained w.r.t one samples in order to reverse this single sample in log-signature space. Moreover, the parameter in encoder does not change too much when we are training it to reverse different samples. Therefore, we can leverage the parameter trained before to start our training for the next sample, which accelerates the training procedure. Also, we can pre-trained the model on a collection of log-signature and use the pre-trained model to inverse a sample without training.  
 
 \section{Evaluation of model}
 We evaluate the goodness of market generator by computing the MMD difference between the true distribution $\P$ and the generated distribution $\mathbb{Q}$ on path space. 
@@ -857,10 +857,44 @@ They also pointed out that the choice of threshold is conservative and can be im
 % \section{Evaluation with lifting and normalizing}
 
 \chapter{Numerical Implementation}
-In this chapter, we present numerical implementations of our algorithm. We would first preset the numerical result of market generator introduced last chapter on both real market data as well as time series generated by models. Moreover, we would present some numerical comparisons between different evaluation metrics and inversion algorithms and blenchmark our contribution to blenchmarks. At the end of this chapter, we supplent with numerical examples highlighting the efficiency of signature features and provide a new approach to stimulate time series. 
+In this chapter, we present numerical implementations of our algorithm. We would first preset the numerical result of market generator introduced last chapter on both real market data as well as time series generated by models. Moreover, we would present some numerical comparisons between different evaluation metrics and inversion algorithms and benchmark our contribution to benchmarks. At the end of this chapter, we supplement with numerical examples highlighting the efficiency of signature features and provide a new approach to stimulate time series. 
 \section{Market generator}
 \section{Evaluation}
 \section{Inversion algorithm}
+In this section, we display the numerical implementation of our neural methods inverting log-signature to path and compare our method with the evolution method introduced in \cite{buehler2020data}. We first consider a 2-dimensional Black-scholes model of independent assets $S_{t} = (S^{1}_{t}, S^{2}_{t})$, where
+\begin{equation*}
+  S^{k}_{t} = e^{W^{k}_{t} - \frac{t}{2}},\quad k = 1,2
+\end{equation*}
+with $W^{1}$ and $W^{2}$ independent brownian motions. We sample the $2$-d path on $t = \frac{i}{N}$, $i = 0,\cdots N$ and $N = 20$. Then we compute the discrete log-signature of the discrete stream. Now we apply our neural methods to inverse the log-signature to path and we obtain the following result
+ \begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/inverse2.png}
+    \caption{Inverse 2-d path with neural method}
+\end{figure}
+The log-signature error between real path and recovered path are always small by training. But sometimes (frequency like 1 time in 5 experiments) we found that the recovered path is not close to the original one even though their log-signature are very close under $L^{2}$ norm. Possible reasons for this phenomenon follows.
+\begin{enumerate}[(i)]
+  \item The path embeds tree-like structure so the algorithm does not work in theory. This can be solved by a time augmentation. 
+  \item $L^{2}$-error on log-signature space is not a good loss. We can weight different coordinates but there is actually no good reason to do so.
+  \item Neural-network is not well designed which produce paths that are too wild and prior on paths space should be added. A more careful study of structure of neural network should be studied in future work.
+\end{enumerate}
+A direct fix is to apply time augmentation and we perform the numerical comparison below. 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figs/inverse7.png}
+  \caption{Inverse 2-d path with neural method}
+\end{figure}
+Next, we consider $1$-d path $X_{t} = S^{1}_{t}$ with observation $(X_{i})_{i=0}^{N}$ on $t = \frac{i}{N}$, $i = 0,\cdots N$ and $N = 20$. We apply lead-lag transformation on $(X_{i})_{i=0}^{N}$ which gives a $2$-dimensional path $(\tilde{X}_{i})_{i=0}^{N}$. Then we can use the same procedure above to inverse the log-signature, therefore retrieve the original path. We compare our method with the evolution algorithm by plotting the retrieved path and computing the replication strategy of call option w.r.t the retrieved path. 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figs/inverse9.png}
+  \caption{Neural method VS evolution algorithm}
+\end{figure}
+The neural method with lead-lag slightly perform better than the evolution algorithm with lead-lag in most cases, but still sometimes evolution algorithm is better. However, the neural method is much faster! It takes usually $5$ seconds to retrieve a path but evolution algorithm take $5$ minutes. Moreover, we observe that the neural method with time augmentation outperform the other two methods and it is more stable across experiments.   
+
+
+
+
+
 \section{Path stimulation with signature}
 Let us consider numerical stimulations of the following stochastic differential equation
 \begin{equation*}
@@ -909,7 +943,7 @@ Here we approximate the signature by growing signature. This is important becaus
     0.15& 0.05
   \end{bmatrix} \neq 0
 \end{equation*} 
-Unfortunately, all python packages I know available so far (including esig, iisignature, and Signatory) only support truncated discrete signature. We blenchmark with Euler approximation on a very fine grid.
+Unfortunately, all python packages I know available so far (including esig, iisignature, and Signatory) only support truncated discrete signature. We benchmark with Euler approximation on a very fine grid.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/sde1.png}
@@ -928,7 +962,7 @@ Below we compare the stimulation between growing discrete signature and truncate
     \includegraphics[width=\textwidth]{figs/sde5.png}
     \caption{Growing discrete signature}
 \end{figure}
-Growing discrete signature outperform the truncated signature. As the order of growning discrete signature increase, the performance tends to the Euler method. This is useful because if we know the signature of our control at $T$, then multiplying the signature with vectorfield gives a stimulation as good as Euler stimulation running from $0$ to $T$. The key here is the linear relation between signature and the value of SDE. Inversely, this linear relation can be easily learnt by a simple linear regression.
+Growing discrete signature outperform the truncated signature. As the order of truncated discrete signature increases, it tends to the limit of approximation with error caused by mis-computing the quadratic variation term. As the order of growing discrete signature increase, the performance tends to the Euler method. This is useful because if we know the signature of our control at $T$, then multiplying the signature with vector field gives a stimulation as good as Euler stimulation running from $0$ to $T$. The key here is the linear relation between signature and the value of SDE. Inversely, this linear relation can be easily learnt by a simple linear regression.
 
 \section{Learning from path to path}
 Consider controlled differential equations 
@@ -943,8 +977,8 @@ By generalized Taylor's expansion we have
         &= \langle M_{i} ,  \mathbf{Sig}_{[s,t]} \otimes X_{s} \rangle
     \end{split}
 \end{equation}
-Where $M^{i_{1},\cdots,i_{m}}_{i,j}$ are matrixs depending on $s$. If we let $\mathcal{X} = \mathbf{Sig}_{[s,t]} \otimes X_{s}$ and $\mathcal{Y} = X_{t}$
-Therefore, we can learn the relation in \eqref{eq62} by a linear regression on $(\mathcal{X},\mathcal{Y})$. Now, we consider $m = d = 2$ and 
+Where $M^{i_{1},\cdots,i_{m}}_{i,j}$ are matrixes depending on $s$. If we let $\mathcal{X} = \mathbf{Sig}_{[s,t]} \otimes X_{s}$ and $\mathcal{Y} = X_{t}$
+Therefore, we can learn the relation in \eqref{eq62} by a linear regression on $(\mathcal{X},\mathcal{Y})$. This idea was first shown to me in the machine learning in finance course by Prof. Josef Teichmann, where he also introduced reservoir computing which is closely related to this approach here if you consider the signature stream as a reservoir. We refer interested readers on signature and reservoir computing to ......  Now, we consider $m = d = 2$ and the following dynamic
 \begin{equation*}
   V^{1}(X) = \begin{bmatrix}
     2|X^{(2)}|^{0.7}\\
@@ -959,13 +993,17 @@ Therefore, we can learn the relation in \eqref{eq62} by a linear regression on $
     2
   \end{bmatrix}.
 \end{equation*}
-We stimulate the real solution $X$ with Euler scheme on $[0,1]$ with $2000$ grid points. 
+For reservoir space, we consider 
+\begin{equation}
+  dR_{t} = \sum_{k=1}^{m}(A^{k}R_{t} + b^{k})dW^{k}_{t},\quad R_{t}\in\R^{d}
+\end{equation}
+where $A^{k}$ and $b^{k}$ are random matrix and vector. We stimulate the real solution $X$ with Euler scheme on $[0,1]$ with $2000$ grid points. 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/res1.png}
     \caption{Solution of SDE stimulated with Euler method}
 \end{figure}
-We choose first $t=1,\cdots 1000$ to be training samples, and $t=1001,\cdots 2000$ to be test samples. We use ridge regression to learn matrixes $M^{i_{1},\cdots,i_{m}}_{i,j}$ on training samples, and generate path on testing samples with learnt matrixs. We compared the generated path with true path under the same random seed. 
+We choose first $t=1,\cdots 1000$ to be training samples, and $t=1001,\cdots 2000$ to be test samples. We use ridge regression to learn matrixes $M^{i_{1},\cdots,i_{m}}_{i,j}$ on training samples, and generate path on testing samples with learnt matrixes. We compared the generated path with true path under the same random seed. 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/res2.png}
@@ -983,8 +1021,28 @@ Now we present the relation between error and order of growing discrete signatur
     \includegraphics[width=\textwidth]{figs/res4.png}
     \caption{ Order - Error}
 \end{figure}
+As the order of discrete signature increases, the error decreases and usually touches the limit when order comes to 6. Next, we use generators we just learnt to generate new samples and compared generators based on different truncation order with MMD distance between samples generated by true dynamic. 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figs/res5.png}
+  \caption{$T_{U}^{2}$ statistics of different generators}
+\end{figure}
+We found the the market generator learnt by signature of higher order is as good as the real dynamic. In fact, the linear relation not only helps to build a nice model, but contribute to the training procedure because many robust solvers for linear regression are available. If we simply use Adam algorithm to train the same model, the performance is not as good as what we achieved by closed-form solver. 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figs/res6.png}
+  \caption{Different optimization algorithms}
+\end{figure}
+However, it should be pointed out that this linear relation only holds when we consider path starting from the same initial point because matrixes $M^{i_{1},\cdots,i_{m}}_{i,j}$ depends on the gradient of vector field at the starting point $X_{s}$. Therefore, unless the the vector field is linear (gradient independent of $X_{s}$), our model can not be directly applied if samples are paths starting from different initial points. We consider the same controlled differential equation and we split path in to subpaths before construct training data. Since the first dimension is driven by nonlinear dynamic, the performance of training is greatly interfered by splitting data, while even though the second dimension is driven by linear dynamic, the performance still decreases as we split path into subpaths. 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figs/res7.png}
+  \caption{Splitting paths}
+\end{figure}
+We propose to fix this non-linearity problem by approximate the relation between $X_{s}$ and $M^{i_{1},\cdots,i_{m}}_{i,j}$ by some nonlinear function but more research need to be done in future work. Also, we need to keep in mind that this is not a generative model itself because we are learning the dependency between driving process and controlled process by knowing their value under same random seed. Therefore, in order to generate new samples, we still need to know the distribution of driving process in advance. This might be useful if the target time series you wish to generate is too complicated, but you know that it is driven by some simple process of which you know the distribution. Then, as long as you can observe both the target time series and the simple process, you can apply this methodology to generate new samples.
+
 \chapter{Conclusions and Future Work}
-compared with gan 
+
 
 \chapter{Appendix}
 

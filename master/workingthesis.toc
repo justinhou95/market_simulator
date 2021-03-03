@@ -1,7 +1,7 @@
 \contentsline {chapter}{\numberline {1}Introduction}{3}{chapter.1}
 \contentsline {chapter}{\numberline {2}Financial times-series stimulation}{4}{chapter.2}
 \contentsline {section}{\numberline {2.1}Challenges in financial scenario}{4}{section.2.1}
-\contentsline {section}{\numberline {2.2}Stylised facts and evaluation of similarity}{4}{section.2.2}
+\contentsline {section}{\numberline {2.2}Stylized facts and evaluation of similarity}{4}{section.2.2}
 \contentsline {section}{\numberline {2.3}Classical and modern model}{4}{section.2.3}
 \contentsline {chapter}{\numberline {3}Signature feature}{5}{chapter.3}
 \contentsline {section}{\numberline {3.1}Signature}{5}{section.3.1}
@@ -32,7 +32,7 @@
 \contentsline {section}{\numberline {6.1}Market generator}{31}{section.6.1}
 \contentsline {section}{\numberline {6.2}Evaluation}{31}{section.6.2}
 \contentsline {section}{\numberline {6.3}Inversion algorithm}{31}{section.6.3}
-\contentsline {section}{\numberline {6.4}Path stimulation with signature}{31}{section.6.4}
-\contentsline {section}{\numberline {6.5}Learning from path to path}{34}{section.6.5}
-\contentsline {chapter}{\numberline {7}Conclusions and Future Work}{36}{chapter.7}
-\contentsline {chapter}{\numberline {8}Appendix}{37}{chapter.8}
+\contentsline {section}{\numberline {6.4}Path stimulation with signature}{33}{section.6.4}
+\contentsline {section}{\numberline {6.5}Learning from path to path}{36}{section.6.5}
+\contentsline {chapter}{\numberline {7}Conclusions and Future Work}{41}{chapter.7}
+\contentsline {chapter}{\numberline {8}Appendix}{42}{chapter.8}

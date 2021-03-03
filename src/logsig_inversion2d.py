@@ -24,7 +24,7 @@ class Organism:
                 derivatives.append(derivative2)
 
         prices = np.r_[0., np.cumsum(derivatives)]
-        path = leadlag(prices)
+        path = prices
 
         o = Organism(self.n_points, self.pip, self.n_pips)
         o.derivatives = derivatives
@@ -41,7 +41,7 @@ class Organism:
         self.derivatives = np.array([self.random_derivative() for _ in range(self.n_points - 1)])
         prices = np.r_[0., self.derivatives.cumsum()]
 
-        path = leadlag(prices)
+        path = prices
         self.set_path(path)
 
 
@@ -51,7 +51,7 @@ class Organism:
                 self.derivatives[i] = self.random_derivative()
 
         prices = np.r_[0., np.cumsum(self.derivatives)]
-        path = leadlag(prices)
+        path = prices
         self.set_path(path)
 
     def set_path(self, path):
@@ -110,7 +110,8 @@ def train(sig, order, n_iterations, n_organisms, n_points, pip, n_pips,
 
         if loss == 0.:
             break
-    return population.fittest(sig, p=top_p, order=order)[0].path[::2, 1], loss
+
+    return population.fittest(sig, p=top_p, order=order)[0].path, loss
 
         
         

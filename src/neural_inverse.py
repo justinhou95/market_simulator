@@ -34,7 +34,6 @@ def data_prepare(X,y):
         ds = Dataset(torch.tensor(X,dtype = torch.float32))
         dl = torch.utils.data.DataLoader(ds, batch_size=64)
         return ds, dl
-    
 #         
 #         split = int(batch/2)
 #         X_train = X[:split]
@@ -96,6 +95,104 @@ class Net(nn.Module):
             if epoch%100 == 0:    
                 print('step: ',epoch,'loss: ', running_loss)
         print('Finished Training')
+        
+        
+class Net_two(nn.Module):
+    def __init__(self, input_dim, order, N):
+        super(Net_two, self).__init__()
+        self.N = N
+        self.order = order
+        self.fc1 = nn.Linear(input_dim,200)  
+        self.fc2 = nn.Linear(200,200)
+        self.fc3 = nn.Linear(200,N*10)
+        self.fc4 = nn.Linear(10,2)
+        self.logsig1 = signatory.LogSignature(depth=order)
+    def forward(self, x):
+        B = x.size()[0]
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        x = x.view([-1,self.N,10])
+        x = self.fc4(x)
+        x = torch.cumsum(x,axis = 1)
+        x = torch.cat([torch.zeros(size = [B,1,2]),x], axis = 1)
+        sig = self.logsig1(x, basepoint = True)
+        return x, sig
+    
+    def train_net(self, dl, epochs):
+        criterion = nn.MSELoss()
+        optimizer = optim.Adam(self.parameters(), lr=0.003)
+        for epoch in range(epochs):  # loop over the dataset multiple times
+            running_loss = 0.0
+            for i, x in enumerate(dl):
+                optimizer.zero_grad()
+                x = x.float()
+                p, x_re = self.__call__(x)
+                loss = criterion(x, x_re)
+                loss.backward()
+                optimizer.step()
+                running_loss += loss.item()
+            if epoch%100 == 0:    
+                print('step: ',epoch,'loss: ', running_loss)
+        print('Finished Training')       
+        
+        
+class Net_time(nn.Module):
+    def __init__(self, input_dim, order, N, time, d):
+        super(Net_time, self).__init__()
+        self.level = np.array([len(w) for w in signatory.lyndon_words(d+1,order)])
+        self.time = time
+        self.d = d
+        self.N = N
+        self.order = order
+        self.fc1 = nn.Linear(input_dim,200)  
+        self.fc2 = nn.Linear(200,200)
+        self.fc3 = nn.Linear(200,N*10)
+        self.fc4 = nn.Linear(10,self.d)
+        self.logsig1 = signatory.LogSignature(depth=order)
+    def forward(self, x):
+        B = x.size()[0]
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        x = x.view([-1,self.N,10])
+        x = self.fc4(x)
+        x = torch.cumsum(x,axis = 1)
+        x = torch.cat([torch.zeros(size = [B,1,self.d]),x], axis = 1)
+        x = torch.cat([self.time,x], axis = -1)
+        sig = self.logsig1(x, basepoint = True)
+        return x, sig
+    
+    def train_net(self, dl, epochs):
+#         print(self.level)
+#         weight = 1.1**(self.level-1)
+#         weight = torch.Tensor(weight)
+        criterion = nn.MSELoss()
+        optimizer = optim.Adam(self.parameters(), lr=0.003)
+        for epoch in range(epochs):  # loop over the dataset multiple times
+            running_loss = 0.0
+            for i, x in enumerate(dl):
+                optimizer.zero_grad()
+                x = x.float()
+                p, x_re = self.__call__(x)
+                loss = criterion(x, x_re)
+#                 print(x_re.shape)
+#                 loss = torch.dot(torch.square(x - x_re)[0,:] , weight )
+#                 print(loss.shape)
+                loss.backward()
+                optimizer.step()
+                running_loss += loss.item()
+            if epoch%100 == 0:    
+                print('step: ',epoch,'loss: ', running_loss)
+        print('Finished Training')      
+        
+        
+        
+        
+        
+        
+        
+        
 
 def reconstruct_plot(model,X,y,order = 0):
     batch = y.shape[0]
@@ -118,24 +215,37 @@ def reconstruct_plot(model,X,y,order = 0):
             plt.plot(y_recover[idx])
         plt.show()
         return y_recover, logsig_recover
-            
-#             K = 1
-#             sigma = 1
-#             time = np.linspace(0,1,y_true.shape[0])
-#             C, V = hedge.delta_hedge(K, sigma, time, y_true)
-#             C_recover, V_recover = hedge.delta_hedge(K, sigma, time, y_recover.numpy())
-#             plt.plot(V)
-#             plt.plot(V_recover)
-#             if i == 3:
-#                 plt.legend(['True path', 'Neural path'] + ['True hedge', 'Neural hedge'])
-            
-           
     else:
         logsig_recover = signatory.logsignature(y_predict, order)
         y_recover = leadlag_inverse(y[0])[0] + leadlag_inverse(y_predict[0])
 #         plt.plot(leadlag_inverse(y[0]))
 #         plt.plot(y_recover)
         return y_recover, logsig_recover 
+
+
+def inverse_single_path_time(logsig, N, order, time, d, net0 = None):
+    X0 = logsig.numpy()
+    dl = torch.tensor(X0)[None,:,:]
+    if not net0:
+        net0 = Net_time(X0.shape[-1],order,N, time, d)
+    net0.train_net(dl,1000)
+    criterion = nn.MSELoss()
+    with torch.no_grad():  
+        X = torch.tensor(X0, dtype = torch.float)
+        y_predict, X_predict = net0(X)    
+    return net0, y_predict, X_predict
+
+def inverse_single_path_two(logsig, N, order, net0 = None):
+    X0 = logsig.numpy()
+    dl = torch.tensor(X0)[None,:,:]
+    if not net0:
+        net0 = Net_two(X0.shape[-1],order,N)
+    net0.train_net(dl,1000)
+    criterion = nn.MSELoss()
+    with torch.no_grad():  
+        X = torch.tensor(X0, dtype = torch.float)
+        y_predict, X_predict = net0(X)    
+    return net0, y_predict, X_predict
     
     
 def inverse_single_path(path0, order, net0 = None):

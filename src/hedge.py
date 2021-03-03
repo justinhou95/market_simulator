@@ -32,21 +32,27 @@ def delta_hedge(K, sigma, time, S):   # special for T = 1 and Bt = t
         V[i+1] = V[i] + B_holding[i]*dt + S_holding[i]*(S[i+1]-S[i])
     return C, V
 
-def delta_comapre(K,sigma,time,path0,y_recover0,y_recover1):
+def delta_comapre(K,sigma,time,path0,y_recover0,y_recover1,y_recover_time_0 ):
     C, V = delta_hedge(K, sigma, time, path0[0,:,0])
     C_recover0, V_recover0 = delta_hedge(K, sigma, time, y_recover0.numpy())
+    C_recover_time_0, V_recover_time_0 = delta_hedge(K, sigma, time, y_recover_time_0.numpy())
     C_recover1, V_recover1 = delta_hedge(K, sigma, time, y_recover1)
-
-    plt.figure(figsize=(12, 3))
-    plt.subplot(1, 2, 1)
-    plt.plot(path0[0])
-    plt.plot(y_recover0)
-    plt.plot(y_recover1)
-    plt.legend(['True path', 'Neural path', 'Evolution path'])
-    plt.subplot(1, 2, 2)
-    plt.plot(V)
-    plt.plot(V_recover0)
-    plt.plot(V_recover1)
-    plt.legend(['True hedge', 'Neural hedge', 'Evolution hedge'])
+    f,p=plt.subplots(1,2,figsize=(16,4)) 
+    p[0].plot(path0[0])
+    p[0].plot(y_recover0)
+    p[0].plot(y_recover_time_0)
+    p[0].plot(y_recover1)
+    p[0].legend(['True', 'Neural(lead-lag)', 'Neural(time-aug)', 'Evolution(lead-lag)'])
+    p[1].plot(V[:-1])
+    p[1].plot(V_recover0[:-1])
+    p[1].plot(V_recover_time_0[:-1])
+    p[1].plot(V_recover1[:-1])
+    p[1].plot(C)
+    p[1].legend(['True', 'Neural(lead-lag)', 'Neural(time-aug)', 'Evolution(lead-lag)', 'Option price'])
+    p[0].title.set_text('Stock price: $S_{t}$')
+    p[1].title.set_text('Replication portfolio: $V_{t}$')
+    
+    for i in range(2):
+        p[i].grid()
     plt.show()
     return V_recover0, V_recover1

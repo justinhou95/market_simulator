@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017/W32TeX) (preloaded format=xelatex 2018.3.17)  2 MAR 2021 23:07
+This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017/W32TeX) (preloaded format=xelatex 2018.3.17)  3 MAR 2021 22:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -735,9 +735,14 @@ Chapter 5.
 
 ] [27] [28] [29] [30]
 Chapter 6.
-[31
+File: figs/inverse2.png Graphic file (type QTm)
+<use  "figs/inverse2.png" > [31
 
 ]
+File: figs/inverse7.png Graphic file (type QTm)
+ <use  "figs/inverse7.png" >
+File: figs/inverse9.png Graphic file (type QTm)
+ <use  "figs/inverse9.png" > [32] [33]
 File: figs/sde1.png Graphic file (type QTm)
  <use  "figs/sde1.png" >
 File: figs/sde2.png Graphic file (type QTm)
@@ -747,40 +752,46 @@ File: figs/sde3.png Graphic file (type QTm)
 File: figs/sde4.png Graphic file (type QTm)
  <use  "figs/sde4.png" >
 File: figs/sde5.png Graphic file (type QTm)
- <use  "figs/sde5.png" > [32] [33]
+ <use  "figs/sde5.png" > [34] [35]
 File: figs/res1.png Graphic file (type QTm)
- <use  "figs/res1.png" >
+ <use  "figs/res1.png" > [36]
 File: figs/res2.png Graphic file (type QTm)
- <use  "figs/res2.png" > [34]
+ <use  "figs/res2.png" >
 File: figs/res3.png Graphic file (type QTm)
  <use  "figs/res3.png" >
 File: figs/res4.png Graphic file (type QTm)
- <use  "figs/res4.png" > [35]
+ <use  "figs/res4.png" > [37]
+File: figs/res5.png Graphic file (type QTm)
+ <use  "figs/res5.png" >
+File: figs/res6.png Graphic file (type QTm)
+ <use  "figs/res6.png" > [38]
+File: figs/res7.png Graphic file (type QTm)
+ <use  "figs/res7.png" > [39] [40]
 Chapter 7.
-[36
+[41
 
 ]
 Chapter 8.
-(./workingthesis.bbl [37
+(./workingthesis.bbl [42
 
-] [38
+] [43
 
-] [39] [40])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 995.
- [41]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 995.
+] [44] [45])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1053.
+ [46]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1053.
  (./workingthesis.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 995.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 995.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 995.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 1053.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 1053.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1053.
  ) 
 Here is how much of TeX's memory you used:
- 10988 strings out of 493005
- 153915 string characters out of 6129136
+ 11000 strings out of 493005
+ 154065 string characters out of 6129136
  243196 words of memory out of 5000000
- 14782 multiletter control sequences out of 15000+600000
+ 14788 multiletter control sequences out of 15000+600000
  24188 words of font info for 104 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 28i,21n,48p,1994b,435s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 28i,21n,48p,1995b,435s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on workingthesis.pdf (43 pages).
+Output written on workingthesis.pdf (48 pages).
