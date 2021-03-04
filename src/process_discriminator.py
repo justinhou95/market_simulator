@@ -67,18 +67,17 @@ def Phi(X, order, normalise=True, compute_sigs=True):
     else:
         dim = 2
         sig = np.array(X)
-
+    print('before normalized')
+    print(np.linalg.norm(sig)**2)
     if not normalise:
-        return sig
-    
+        return sig    
 #     print(np.linalg.norm(sig)**2)
-    
     keys = get_keys(dim, order)
 
     phi_x = phi(tuple(sig), order, keys)
     Lambda = np.array([phi_x ** len(t) for t in keys])
-
-#     print(np.linalg.norm(Lambda * sig)**2)
+    print('after normalized')
+    print(np.linalg.norm(Lambda * sig)**2)
     
     return Lambda * sig
 
@@ -146,31 +145,40 @@ def T_global(set1, set2, order, verbose=True, normalise=True, compute_sigs=True)
     print(min_phi)
     print('='*100)
     
-    return min_phi
+    return min_phi, PHI_X, PHI_Y
 
 
 def Phi_fix(X, order, normalise=True, compute_sigs=True, phi_x = 1):
+#     print(phi_x)
+#     print('not fix')
     if compute_sigs:
         dim = np.shape(X)[1]
         sig = tosig.stream2sig(np.array(X), order)
     else:
         dim = 2
         sig = np.array(X)
-
     if not normalise:
         return sig
     
     keys = get_keys(dim, order)
-    
-
     Lambda = np.array([phi_x ** len(t) for t in keys])
     
-    return Lambda * sig
+    sig_now = Lambda * sig
+    
+    phi_x_now = phi(tuple(sig_now), order, keys)
+    Lambda_now = np.array([phi_x_now ** len(t) for t in keys])
+    
+    return Lambda_now * sig_now
+
+
+
+
+
 
 def T_fix(set1, set2, order, verbose=True, normalise=True, compute_sigs=True, phi_x = 1):
     m = len(set1)
     n = len(set2)
-
+    
     X = Parallel(n_jobs=1)(delayed(Phi_fix)(path, order, normalise, compute_sigs, phi_x) for path in tqdm(set1, desc="Computing signatures of population 1", disable=(not verbose)))
     Y = Parallel(n_jobs=1)(delayed(Phi_fix)(path, order, normalise, compute_sigs, phi_x) for path in tqdm(set2, desc="Computing signatures of population 2", disable=(not verbose)))
 
@@ -183,7 +191,6 @@ def T_fix(set1, set2, order, verbose=True, normalise=True, compute_sigs=True, ph
     TU += YY.sum() / (n * n)
     TU -= 2 * XY.sum() / (m * n)
     
-    print(phi_x)
 
 
     return TU
@@ -195,35 +202,6 @@ def c_alpha(m, alpha):
     return (2 * K / m) * (1 + np.sqrt(-2 * np.log(alpha))) ** 2
 
 def test(set1, set2, order, confidence_level=0.99, **kwargs):
-    """Statistical test to determine if two sets of paths come
-    from the same distribution.
-
-    The statistical test is based in the following paper:
-
-    Chevyrev, I. and Oberhauser, H., 2018. Signature moments to
-    characterize laws of stochastic processes. arXiv preprint
-    arXiv:1810.10971.
-
-
-    Parameters
-    ----------
-    set1 : list of array
-        Set of paths.
-    set2 : list of array
-        Set of paths.
-    order : int
-        Signature order.
-    confidence_level : float, optional
-        Confidence level of the statistical test. Must be in [0, 1].
-        Default is 0.99, i.e. 99%.
-
-    Returns
-    -------
-    bool
-        True if the hypothesis is rejected and hence the sets come from
-        different distributions, False otherwise.
-
-    """
 
     assert len(set1) == len(set2), "Same size samples accepted for now."
 
@@ -241,35 +219,6 @@ def test(set1, set2, order, confidence_level=0.99, **kwargs):
 
 
 def test_global(set1, set2, order, confidence_level=0.99, **kwargs):
-    """Statistical test to determine if two sets of paths come
-    from the same distribution.
-
-    The statistical test is based in the following paper:
-
-    Chevyrev, I. and Oberhauser, H., 2018. Signature moments to
-    characterize laws of stochastic processes. arXiv preprint
-    arXiv:1810.10971.
-
-
-    Parameters
-    ----------
-    set1 : list of array
-        Set of paths.
-    set2 : list of array
-        Set of paths.
-    order : int
-        Signature order.
-    confidence_level : float, optional
-        Confidence level of the statistical test. Must be in [0, 1].
-        Default is 0.99, i.e. 99%.
-
-    Returns
-    -------
-    bool
-        True if the hypothesis is rejected and hence the sets come from
-        different distributions, False otherwise.
-
-    """
 
     assert len(set1) == len(set2), "Same size samples accepted for now."
 
@@ -288,35 +237,6 @@ def test_global(set1, set2, order, confidence_level=0.99, **kwargs):
 
 
 def test_fix(set1, set2, order, confidence_level=0.99, **kwargs):
-    """Statistical test to determine if two sets of paths come
-    from the same distribution.
-
-    The statistical test is based in the following paper:
-
-    Chevyrev, I. and Oberhauser, H., 2018. Signature moments to
-    characterize laws of stochastic processes. arXiv preprint
-    arXiv:1810.10971.
-
-
-    Parameters
-    ----------
-    set1 : list of array
-        Set of paths.
-    set2 : list of array
-        Set of paths.
-    order : int
-        Signature order.
-    confidence_level : float, optional
-        Confidence level of the statistical test. Must be in [0, 1].
-        Default is 0.99, i.e. 99%.
-
-    Returns
-    -------
-    bool
-        True if the hypothesis is rejected and hence the sets come from
-        different distributions, False otherwise.
-
-    """
 
     assert len(set1) == len(set2), "Same size samples accepted for now."
 

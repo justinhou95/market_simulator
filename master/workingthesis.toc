@@ -31,8 +31,11 @@
 \contentsline {chapter}{\numberline {6}Numerical Implementation}{31}{chapter.6}
 \contentsline {section}{\numberline {6.1}Market generator}{31}{section.6.1}
 \contentsline {section}{\numberline {6.2}Evaluation}{31}{section.6.2}
-\contentsline {section}{\numberline {6.3}Inversion algorithm}{31}{section.6.3}
-\contentsline {section}{\numberline {6.4}Path stimulation with signature}{33}{section.6.4}
-\contentsline {section}{\numberline {6.5}Learning from path to path}{36}{section.6.5}
-\contentsline {chapter}{\numberline {7}Conclusions and Future Work}{41}{chapter.7}
-\contentsline {chapter}{\numberline {8}Appendix}{42}{chapter.8}
+\contentsline {subsection}{\numberline {6.2.1}Separating distributions}{32}{subsection.6.2.1}
+\contentsline {section}{\numberline {6.3}Inversion algorithm}{34}{section.6.3}
+\contentsline {subsection}{\numberline {6.3.1}Single log-signature inversion}{35}{subsection.6.3.1}
+\contentsline {subsection}{\numberline {6.3.2}Multiple log-signatures inversion}{37}{subsection.6.3.2}
+\contentsline {section}{\numberline {6.4}Path stimulation with signature}{38}{section.6.4}
+\contentsline {section}{\numberline {6.5}Learning from path to path}{41}{section.6.5}
+\contentsline {chapter}{\numberline {7}Conclusions and Future Work}{46}{chapter.7}
+\contentsline {chapter}{\numberline {8}Appendix}{47}{chapter.8}

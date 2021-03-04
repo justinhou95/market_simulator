@@ -159,7 +159,11 @@ class Net_time(nn.Module):
         x = self.fc4(x)
         x = torch.cumsum(x,axis = 1)
         x = torch.cat([torch.zeros(size = [B,1,self.d]),x], axis = 1)
-        x = torch.cat([self.time,x], axis = -1)
+        
+        time = torch.linspace(0,1,self.N+1)
+        time_torch = time.repeat([B,1])[:,:,None]
+        
+        x = torch.cat([time_torch,x], axis = -1)
         sig = self.logsig1(x, basepoint = True)
         return x, sig
     
@@ -174,6 +178,7 @@ class Net_time(nn.Module):
             for i, x in enumerate(dl):
                 optimizer.zero_grad()
                 x = x.float()
+#                 print(x.shape)
                 p, x_re = self.__call__(x)
                 loss = criterion(x, x_re)
 #                 print(x_re.shape)
@@ -221,6 +226,18 @@ def reconstruct_plot(model,X,y,order = 0):
 #         plt.plot(leadlag_inverse(y[0]))
 #         plt.plot(y_recover)
         return y_recover, logsig_recover 
+
+
+def inverse_multiple_path_time(logsig, N, order, time, d):
+    X0 = logsig.numpy()
+    ds = Dataset(torch.tensor(X0,dtype = torch.float32))
+    dl = torch.utils.data.DataLoader(ds, batch_size=64)
+    net0 = Net_time(X0.shape[-1],order, N, time, d)
+    net0.train_net(dl,1000)
+    with torch.no_grad():  
+        X = torch.tensor(X0, dtype = torch.float)
+        y_predict, X_predict = net0(X)    
+    return net0, y_predict, X_predict
 
 
 def inverse_single_path_time(logsig, N, order, time, d, net0 = None):

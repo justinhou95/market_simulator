@@ -31,8 +31,11 @@
 \BOOKMARK [0][-]{chapter.6}{Numerical\040Implementation}{}% 31
 \BOOKMARK [1][-]{section.6.1}{Market\040generator}{chapter.6}% 32
 \BOOKMARK [1][-]{section.6.2}{Evaluation}{chapter.6}% 33
-\BOOKMARK [1][-]{section.6.3}{Inversion\040algorithm}{chapter.6}% 34
-\BOOKMARK [1][-]{section.6.4}{Path\040stimulation\040with\040signature}{chapter.6}% 35
-\BOOKMARK [1][-]{section.6.5}{Learning\040from\040path\040to\040path}{chapter.6}% 36
-\BOOKMARK [0][-]{chapter.7}{Conclusions\040and\040Future\040Work}{}% 37
-\BOOKMARK [0][-]{chapter.8}{Appendix}{}% 38
+\BOOKMARK [2][-]{subsection.6.2.1}{Separating\040distributions}{section.6.2}% 34
+\BOOKMARK [1][-]{section.6.3}{Inversion\040algorithm}{chapter.6}% 35
+\BOOKMARK [2][-]{subsection.6.3.1}{Single\040log-signature\040inversion}{section.6.3}% 36
+\BOOKMARK [2][-]{subsection.6.3.2}{Multiple\040log-signatures\040inversion}{section.6.3}% 37
+\BOOKMARK [1][-]{section.6.4}{Path\040stimulation\040with\040signature}{chapter.6}% 38
+\BOOKMARK [1][-]{section.6.5}{Learning\040from\040path\040to\040path}{chapter.6}% 39
+\BOOKMARK [0][-]{chapter.7}{Conclusions\040and\040Future\040Work}{}% 40
+\BOOKMARK [0][-]{chapter.8}{Appendix}{}% 41
