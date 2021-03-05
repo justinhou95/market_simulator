@@ -52,6 +52,7 @@ class Encoder_Pseudo(tf.keras.Model):
         mn,sd = self.encoder0(inputs)
         _,pseudo_output = self.encoder0(self.pseudo_input)
         pseudo_output = pseudo_output[0,0]
+#         pseudo_output = (self.pseudo_data[0,0]+1)**2 
         return [pseudo_output, mn, sd]     
 
 def Decoder(data_dim, cond_dim, latent_dim, hidden_dim):
@@ -173,7 +174,7 @@ class CVAE_bergomi(CVAE):
     def generate(self, condition):
         sample_dim =  condition.shape[0]
         x_inputs = [np.zeros([sample_dim,self.data_dim]),np.zeros([sample_dim,self.cond_dim])]
-        prior,_ = self.encodersampler(x_inputs)
+        prior,_,_ = self.encodersampler(x_inputs)
         randoms = prior.sample(sample_dim)
         outputs = self.decoder([tf.constant(randoms), tf.constant(condition)])
         return outputs 

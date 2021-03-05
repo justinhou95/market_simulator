@@ -7,6 +7,8 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from torch.utils.data import Dataset
 
+import signatory
+
 class DataSetCVAE(torch.utils.data.Dataset):
     def __init__(self, data, data_cond):
         self.data = data
@@ -55,12 +57,47 @@ class Decoder(nn.Module):
     def __init__(self, latent_dim, hidden_dim, output_dim, condition_dim):
         super().__init__()
         self.latent_to_hidden = nn.Linear(latent_dim + condition_dim, hidden_dim)
+        self.hidden_to_hidden = nn.Linear(hidden_dim, hidden_dim)
         self.hidden_to_out = nn.Linear(hidden_dim, output_dim)
         self.act = nn.LeakyReLU(0.3)
     def forward(self, x):
         x = self.act(self.latent_to_hidden(x))
+        x = self.act(self.hidden_to_hidden (x))
         generated_x = torch.sigmoid(self.hidden_to_out(x))
-        return generated_x
+        return generated_x, generated_x
+
+    
+    
+class DecoderLogsignature(Decoder):
+    def __init__(self, latent_dim, hidden_dim, output_dim, condition_dim, order, N, d):
+        super().__init__(latent_dim, hidden_dim, output_dim, condition_dim)
+        self.order = order 
+        self.N = N
+        self.d = d
+        self.fc1 = nn.Linear(output_dim,3*hidden_dim)  
+        self.fc2 = nn.Linear(3*hidden_dim,3*hidden_dim)
+        self.fc3 = nn.Linear(3*hidden_dim,N*10)
+        self.fc4 = nn.Linear(10,d)
+        self.logsig1 = signatory.LogSignature(depth=order)
+    def forward(self, x):
+        x = self.act(self.latent_to_hidden(x))
+        x = self.act(self.hidden_to_hidden (x))
+        x = torch.sigmoid(self.hidden_to_out(x))
+        B = x.size()[0]
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        x = x.view([-1,self.N,10])
+        x = self.fc4(x)
+        x = torch.cumsum(x,axis = 1)
+        x = torch.cat([torch.zeros(size = [B,1,self.d]),x], axis = 1)
+        time = torch.linspace(0,1,self.N+1)
+        time_torch = time.repeat([B,1])[:,:,None]
+        x = torch.cat([time_torch,x], axis = -1)
+        sig = self.logsig1(x, basepoint = True)
+        return x, sig
+    
+
     
 class CVAE(nn.Module):
     def __init__(self, input_dim, hidden_dim, latent_dim, condition_dim, BETA):
@@ -76,8 +113,8 @@ class CVAE(nn.Module):
         eps = torch.randn_like(std)
         x_sample = eps.mul(std).add_(z_mu)
         z = torch.cat((x_sample, y), dim=1)
-        generated_x = self.decoder(z)
-        return generated_x, z_mu, z_var
+        generated_x, generated_sig = self.decoder(z)
+        return generated_sig, z_mu, z_var
     def calculate_loss(self, x, reconstructed_x, mean, log_var):
         RCL = torch.sum((reconstructed_x - x).pow(2))
         KLD = -0.5 * torch.sum(1 + log_var - mean.pow(2) - log_var.exp())
@@ -114,13 +151,23 @@ class CVAE(nn.Module):
 
             train_loss /= self.train_iterator.batch_size
             test_loss /= self.test_iterator.batch_size
-            print(f'Epoch {e}, Train Loss: {train_loss:.5f}, Test Loss: {test_loss:.5f}')
+            if e%500 == 0:
+                print(f'Epoch {e}, Train Loss: {train_loss:.5f}, Test Loss: {test_loss:.5f}')
     def generate(self,cond):
         N_generated = len(cond)
         z = torch.randn(N_generated, self.latent_dim)
         z_and_cond = torch.cat((z, cond), dim=1)
-        reconstructed = self.decoder(z_and_cond).detach()
-        return reconstructed
+        generated_x, generated_sig = self.decoder(z_and_cond)
+        return generated_x.detach(), generated_sig.detach() 
+    
+    
+class CVAE2(CVAE):    
+    def __init__(self, input_dim, hidden_dim, latent_dim, condition_dim, BETA, order, N, d):
+        super().__init__(input_dim, hidden_dim, latent_dim, condition_dim, BETA)
+        self.order = order 
+        self.N = N
+        self.d = d
+        self.decoder = DecoderLogsignature(latent_dim, hidden_dim, input_dim, condition_dim, order, N, d)
 
 
     

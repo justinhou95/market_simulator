@@ -32,7 +32,7 @@ def data_prepare(X,y):
     batch = y.shape[0]
     if batch > 1:
         ds = Dataset(torch.tensor(X,dtype = torch.float32))
-        dl = torch.utils.data.DataLoader(ds, batch_size=64)
+        dl = torch.utils.data.DataLoader(ds, batch_size=100)
         return ds, dl
 #         
 #         split = int(batch/2)
@@ -138,10 +138,9 @@ class Net_two(nn.Module):
         
         
 class Net_time(nn.Module):
-    def __init__(self, input_dim, order, N, time, d):
+    def __init__(self, input_dim, order, N, d):
         super(Net_time, self).__init__()
         self.level = np.array([len(w) for w in signatory.lyndon_words(d+1,order)])
-        self.time = time
         self.d = d
         self.N = N
         self.order = order
@@ -222,17 +221,17 @@ def reconstruct_plot(model,X,y,order = 0):
         return y_recover, logsig_recover
     else:
         logsig_recover = signatory.logsignature(y_predict, order)
-        y_recover = leadlag_inverse(y[0])[0] + leadlag_inverse(y_predict[0])
+        y_recover =  leadlag_inverse(y_predict[0]) #+ leadlag_inverse(y[0])[0]
 #         plt.plot(leadlag_inverse(y[0]))
 #         plt.plot(y_recover)
         return y_recover, logsig_recover 
 
 
-def inverse_multiple_path_time(logsig, N, order, time, d):
+def inverse_multiple_path_time(logsig, N, order, d):
     X0 = logsig.numpy()
     ds = Dataset(torch.tensor(X0,dtype = torch.float32))
     dl = torch.utils.data.DataLoader(ds, batch_size=64)
-    net0 = Net_time(X0.shape[-1],order, N, time, d)
+    net0 = Net_time(X0.shape[-1],order, N, d)
     net0.train_net(dl,1000)
     with torch.no_grad():  
         X = torch.tensor(X0, dtype = torch.float)
@@ -265,13 +264,17 @@ def inverse_single_path_two(logsig, N, order, net0 = None):
     return net0, y_predict, X_predict
     
     
-def inverse_single_path(path0, order, net0 = None):
-    N = path0.shape[1]-1
-    path_torch = leadlag(torch.tensor(path0)[:,:,0])
-    path_leadlag = path_torch.numpy()
-    logsig = signatory.logsignature(path_torch, order)
-    X0 = logsig.numpy()
-    y0 = path_leadlag
+def inverse_single_path(path0, order, sig = None, net0 = None, N = 28):
+    if not sig:
+        N = path0.shape[1]-1
+        path_torch = leadlag(torch.tensor(path0)[:,:,0])
+        path_leadlag = path_torch.numpy()
+        logsig = signatory.logsignature(path_torch, order)
+        X0 = logsig.numpy()
+        y0 = path_leadlag
+    else:
+        X0 = path0
+        y0 = path0[:,:,None]
     dl = data_prepare(X0,y0)
     if not net0:
         net0 = Net(X0.shape[-1],order,N)

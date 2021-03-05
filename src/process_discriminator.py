@@ -167,6 +167,8 @@ def Phi_fix(X, order, normalise=True, compute_sigs=True, phi_x = 1):
     
     phi_x_now = phi(tuple(sig_now), order, keys)
     Lambda_now = np.array([phi_x_now ** len(t) for t in keys])
+#     print('after normalized::')
+#     print(np.linalg.norm(Lambda_now * sig_now)**2)
     
     return Lambda_now * sig_now
 
