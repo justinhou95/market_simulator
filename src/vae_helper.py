@@ -21,7 +21,9 @@ import process_discriminator
 
 
 
-def plot_sig(order, train_sig, test_sig, generated_sig1,different_sig = None, plot_all = False):
+def plot_sig(order, train_sig, test_sig, generated_sig1,different_sig = None, plot_all = False, labels = None):
+    if labels is None:
+        labels = ["Different data", "Train data", "Test data", "VAE normal", ]
 
     keys = sigkeys(2, order).split()
     factor = []
@@ -36,16 +38,16 @@ def plot_sig(order, train_sig, test_sig, generated_sig1,different_sig = None, pl
         
         if different_sig is not None:
             p[k].scatter(different_sig[:, projection[0]], different_sig[:, projection[1]],\
-                       label="Different data", alpha = 0.7, color = 'tab:red')
+                       label=labels[0], alpha = 0.7, color = 'tab:red')
             
         if different_sig is None or plot_all is True:
             p[k].scatter(train_sig[:, projection[0]], train_sig[:, projection[1]],\
-                       label="Train data", alpha = 0.7, color = 'tab:blue')
+                       label=labels[1], alpha = 0.7, color = 'tab:blue')
          
         p[k].scatter(test_sig[:, projection[0]], test_sig[:, projection[1]],\
-                       label="Test data", alpha = 0.7, color = 'tab:green')
+                       label=labels[2], alpha = 0.7, color = 'tab:green')
         p[k].scatter(generated_sig1[:, projection[0]], generated_sig1[:, projection[1]],\
-                         label="VAE normal", alpha = 0.7, color = 'tab:orange')
+                         label=labels[3], alpha = 0.7, color = 'tab:orange')
         
         p[k].set_xlabel(keys[projection[0]], fontsize=10)
         p[k].set_ylabel(keys[projection[1]], fontsize=10)
@@ -54,7 +56,9 @@ def plot_sig(order, train_sig, test_sig, generated_sig1,different_sig = None, pl
     plt.suptitle('Signature')
     plt.show()
     
-def plot_logsig(order, train_logsig, test_logsig, generated_logsig1, different_logsig = None, plot_all = False):
+def plot_logsig(order, train_logsig, test_logsig, generated_logsig1, different_logsig = None, plot_all = False, labels = None):
+    if labels is None:
+        labels = ["Different data", "Train data", "Test data", "VAE normal", ]
     logkeys = logsigkeys(2, order).split()
     logfactor = []
     for i in logkeys:
@@ -67,16 +71,16 @@ def plot_logsig(order, train_logsig, test_logsig, generated_logsig1, different_l
 
         if different_logsig is not None:
             p[k].scatter(different_logsig[:, projection[0]], different_logsig[:, projection[1]],\
-                       label="Different data", alpha = 0.7, color = 'tab:red')
+                       label=labels[0], alpha = 0.7, color = 'tab:red')
         if different_logsig is None or plot_all is True:
             p[k].scatter(train_logsig[:, projection[0]], train_logsig[:, projection[1]],\
-               label="Train data", alpha = 0.7, color = 'tab:blue')
+               label=labels[1], alpha = 0.7, color = 'tab:blue')
             
         
         p[k].scatter(test_logsig[:, projection[0]], test_logsig[:, projection[1]],\
-                       label="Test data", alpha = 0.7, color = 'tab:green')
+                       label=labels[2], alpha = 0.7, color = 'tab:green')
         p[k].scatter(generated_logsig1[:, projection[0]], generated_logsig1[:, projection[1]],\
-                     label="VAE normal", alpha = 0.7, color = 'tab:orange')
+                     label=labels[3], alpha = 0.7, color = 'tab:orange')
         p[k].set_xlabel(logkeys[projection[0]], fontsize=10)
         p[k].set_ylabel(logkeys[projection[1]], fontsize=10)
         p[k].legend()
@@ -128,14 +132,14 @@ def get_data(order, params, freq, ll, scale):
         logsig_transformed = scaler_logsig.fit_transform(train_logsig)
         data = logsig_transformed[1:]   # 1 week forecasting 1 week 
         data_cond = logsig_transformed[:-1] 
-        data_cond = np.zeros_like(data_cond)
+        data_cond = np.zeros_like(data_cond)         ######################################### for VAE
         scaler = scaler_logsig
     else:
         logsig_transformed = None
         scaler = None
         data = train_logsig[1:]   # 1 week forecasting 1 week 
         data_cond = train_logsig[:-1] 
-        data_cond = np.zeros_like(data_cond)
+        data_cond = np.zeros_like(data_cond)     ######################################### for VAE
         
     return train_windows, train_path, train_logsig, train_sig, train_sig_exp, test_windows, test_path,\
 test_logsig, test_sig, test_sig_exp, logsig_transformed, data, data_cond, scaler
@@ -216,10 +220,11 @@ def model_test_plot(model, order, params, params_diff, ll, scale, scaler):
         TU2.append(TU)
     return TU0, TU1, TU2
 
-def signature_MMD_test_plot(m,alpha,TU):
+def signature_MMD_test_plot(m,alpha,TU, label = None):
     K = 8
     split = 4*K / np.sqrt(m) * np.sqrt(np.log(1/alpha))
-    label = ['Same', 'Normal generator', 'Different'] 
+    if label is None:
+        label = ['Same', 'Normal generator', 'Different'] 
     plt.figure(figsize = (16,3))
     a = plt.hist(TU.T, bins = 40, histtype='bar', stacked=True, label = label)
     plt.vlines(split,0,a[0].max(), color = 'r', label = 'acceptance: ' + str(alpha))
@@ -332,6 +337,67 @@ def compare_ll_ta_plot(train_path, train_windows):
     plt.show()
 
 
+    
+    
+
+def model_test_plot_tf(model1, model2, order, params, params_diff, ll, scale, scaler):
+    X_windows, X_path, X_logsig, X_sig, X_sig_exp, Y_windows, Y_path,\
+    Y_logsig, Y_sig, Y_sig_exp, _, X_data, X_data_cond, _ = get_data(order, params, 'M', ll, scale)
+    phi, PHI_X, PHI_Y = process_discriminator.T_global(X_sig_exp, Y_sig_exp, order=order, verbose=False, normalise=True, compute_sigs=False)
+    TU0 = []
+    TU1_1 = []
+    TU1_2 = []
+    TU2 = []
+    for i in tqdm(range(20)):
+        X_windows, X_path, X_logsig, X_sig, X_sig_exp, Y_windows, Y_path,\
+        Y_logsig, Y_sig, Y_sig_exp, _, X_data, X_data_cond, X_scaler = get_data(order, params, 'M', ll, scale)
+        Z_windows, Z_path, Z_logsig, Z_sig, Z_sig_exp, _, _,\
+        _, _, _, _, _, _, _ = get_data(order, params_diff, 'M', ll, scale)
+        
+        X_generated_logsig1 = model1.generate(X_data_cond)
+        X_generated_logsig1 = scaler.inverse_transform(X_generated_logsig1)
+        X_generated_sig1 = np.array([tosig.logsig2sig(logsig, 2, order) for logsig in tqdm(X_generated_logsig1)])
+        
+        X_generated_logsig2 = model2.generate(X_data_cond)
+        X_generated_logsig2 = scaler.inverse_transform(X_generated_logsig2)
+        X_generated_sig2 = np.array([tosig.logsig2sig(logsig, 2, order) for logsig in tqdm(X_generated_logsig2)])
+
+        plot_sig(order, X_sig_exp, Y_sig_exp, X_generated_sig1, X_generated_sig2, True,\
+                ["VAE Student", "Train data", "Test data", "VAE normal", ])
+        plot_logsig(order, X_logsig, Y_logsig, X_generated_logsig1, X_generated_logsig2, True,\
+                   ["VAE Student", "Train data", "Test data", "VAE normal", ])
+
+        result, TU = process_discriminator.test_fix(X_sig_exp[1:], Y_sig_exp[1:],\
+                                                    order=order, confidence_level=0.99, phi_x = phi, compute_sigs=False)
+        TU0.append(TU)
+
+        result, TU = process_discriminator.test_fix(X_sig_exp[1:], X_generated_sig1,\
+                                                    order=order, confidence_level=0.99, phi_x = phi, compute_sigs=False)
+        TU1_1.append(TU)
+        
+        result, TU = process_discriminator.test_fix(X_sig_exp[1:], X_generated_sig2,\
+                                                    order=order, confidence_level=0.99, phi_x = phi, compute_sigs=False)
+        TU1_2.append(TU)
+
+        result, TU = process_discriminator.test_fix(X_sig_exp[1:], Z_sig_exp[1:],\
+                                                    order=order, confidence_level=0.99, phi_x = phi, compute_sigs=False)
+        TU2.append(TU)
+    return TU0, TU1_1, TU1_2, TU2
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 # N = 27
 # order = 4
 # Recovered_train1 = []
