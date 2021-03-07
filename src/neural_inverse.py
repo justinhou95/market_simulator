@@ -190,13 +190,6 @@ class Net_time(nn.Module):
                 print('step: ',epoch,'loss: ', running_loss)
         print('Finished Training')      
         
-        
-        
-        
-        
-        
-        
-        
 
 def reconstruct_plot(model,X,y,order = 0):
     batch = y.shape[0]
@@ -243,7 +236,7 @@ def inverse_single_path_time(logsig, N, order, time, d, net0 = None):
     X0 = logsig.numpy()
     dl = torch.tensor(X0)[None,:,:]
     if not net0:
-        net0 = Net_time(X0.shape[-1],order,N, time, d)
+        net0 = Net_time(X0.shape[-1],order,N, d)
     net0.train_net(dl,1000)
     criterion = nn.MSELoss()
     with torch.no_grad():  
@@ -264,7 +257,20 @@ def inverse_single_path_two(logsig, N, order, net0 = None):
     return net0, y_predict, X_predict
     
     
-def inverse_single_path(path0, order, sig = None, net0 = None, N = 28):
+def inverse_leadlag_path(logsig, N, order, d):
+    X0 = logsig.numpy()
+    dl = torch.tensor(X0)[None,:,:]
+    net0 = Net(X0.shape[-1],order,N)
+    net0.train_net(dl,1000)
+    criterion = nn.MSELoss()
+    with torch.no_grad():  
+        X = torch.tensor(X0, dtype = torch.float)
+        y_predict, X_predict = net0(X)    
+    return net0, y_predict, X_predict
+   
+    
+    
+def inverse_single_path(path0, order, sig = True, net0 = None, N = 28):
     if not sig:
         N = path0.shape[1]-1
         path_torch = leadlag(torch.tensor(path0)[:,:,0])
@@ -275,6 +281,7 @@ def inverse_single_path(path0, order, sig = None, net0 = None, N = 28):
     else:
         X0 = path0
         y0 = path0[:,:,None]
+    
     dl = data_prepare(X0,y0)
     if not net0:
         net0 = Net(X0.shape[-1],order,N)

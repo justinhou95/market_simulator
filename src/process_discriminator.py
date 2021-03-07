@@ -141,6 +141,8 @@ def T_global(set1, set2, order, verbose=True, normalise=True, compute_sigs=True)
     
     min_phi = min(min_phi_x, min_phi_y)
     
+    min_phi = min(np.array(PHI_X).mean(),np.array(PHI_Y).mean())
+    
     print('='*100)
     print(min_phi)
     print('='*100)
@@ -248,8 +250,8 @@ def test_fix(set1, set2, order, confidence_level=0.99, **kwargs):
 
     TU = T_fix(set1, set2, order, **kwargs)
     c = c_alpha(m, confidence_level)
-    print('c:', c)
-    print('TU:', TU)
-    print('m:',m)
+#     print('c:', c)
+#     print('TU:', TU)
+#     print('m:',m)
 
     return TU > c, TU

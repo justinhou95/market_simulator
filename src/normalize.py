@@ -40,5 +40,17 @@ def Phi(sig, dim, order, phi_x = None):
 def normalize_sig(dim,order,train_sig_exp):
     train_sig_normalized = np.array([Phi(s, dim, order) for s in train_sig_exp])
     return train_sig_normalized
+
+def normalize_logsig0(dim,order, logsig):
+    a = signatory.lyndon_words(dim,order)
+    power = np.array([len(w) for w in a])
+    phi_x = 10
+    Lambda = phi_x ** power
+    output = Lambda * logsig
+    return output
+
+def normalize_logsig(dim, order, logsig):
+    logsig_normalized = np.array([normalize_logsig0(dim, order,s) for s in logsig])
+    return logsig_normalized
     
     

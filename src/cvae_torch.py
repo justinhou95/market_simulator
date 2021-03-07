@@ -74,9 +74,9 @@ class DecoderLogsignature(Decoder):
         self.order = order 
         self.N = N
         self.d = d
-        self.fc1 = nn.Linear(output_dim,3*hidden_dim)  
-        self.fc2 = nn.Linear(3*hidden_dim,3*hidden_dim)
-        self.fc3 = nn.Linear(3*hidden_dim,N*10)
+        self.fc1 = nn.Linear(output_dim,hidden_dim)  
+        self.fc2 = nn.Linear(hidden_dim,hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim,N*10)
         self.fc4 = nn.Linear(10,d)
         self.logsig1 = signatory.LogSignature(depth=order)
     def forward(self, x):
