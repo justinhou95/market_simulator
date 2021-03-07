@@ -35,8 +35,9 @@
 \BOOKMARK [1][-]{section.6.2}{Evaluation}{chapter.6}% 35
 \BOOKMARK [2][-]{subsection.6.2.1}{Separating\040distributions}{section.6.2}% 36
 \BOOKMARK [1][-]{section.6.3}{Market\040generator}{chapter.6}% 37
-\BOOKMARK [2][-]{subsection.6.3.1}{Variational\040autoencoders}{section.6.3}% 38
-\BOOKMARK [1][-]{section.6.4}{Path\040stimulation\040with\040signature}{chapter.6}% 39
-\BOOKMARK [1][-]{section.6.5}{Learning\040from\040path\040to\040path}{chapter.6}% 40
-\BOOKMARK [0][-]{chapter.7}{Conclusions\040and\040Future\040Work}{}% 41
-\BOOKMARK [0][-]{chapter.8}{Appendix}{}% 42
+\BOOKMARK [2][-]{subsection.6.3.1}{Lead-lag\040based\040VAEs}{section.6.3}% 38
+\BOOKMARK [2][-]{subsection.6.3.2}{Time-augmentation\040based\040VAEs}{section.6.3}% 39
+\BOOKMARK [1][-]{section.6.4}{Path\040stimulation\040with\040signature}{chapter.6}% 40
+\BOOKMARK [1][-]{section.6.5}{Learning\040from\040path\040to\040path}{chapter.6}% 41
+\BOOKMARK [0][-]{chapter.7}{Conclusions\040and\040Future\040Work}{}% 42
+\BOOKMARK [0][-]{chapter.8}{Appendix}{}% 43

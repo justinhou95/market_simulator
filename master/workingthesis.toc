@@ -35,8 +35,9 @@
 \contentsline {section}{\numberline {6.2}Evaluation}{35}{section.6.2}
 \contentsline {subsection}{\numberline {6.2.1}Separating distributions}{36}{subsection.6.2.1}
 \contentsline {section}{\numberline {6.3}Market generator}{39}{section.6.3}
-\contentsline {subsection}{\numberline {6.3.1}Variational autoencoders}{39}{subsection.6.3.1}
-\contentsline {section}{\numberline {6.4}Path stimulation with signature}{41}{section.6.4}
-\contentsline {section}{\numberline {6.5}Learning from path to path}{43}{section.6.5}
-\contentsline {chapter}{\numberline {7}Conclusions and Future Work}{48}{chapter.7}
-\contentsline {chapter}{\numberline {8}Appendix}{49}{chapter.8}
+\contentsline {subsection}{\numberline {6.3.1}Lead-lag based VAEs}{39}{subsection.6.3.1}
+\contentsline {subsection}{\numberline {6.3.2}Time-augmentation based VAEs}{42}{subsection.6.3.2}
+\contentsline {section}{\numberline {6.4}Path stimulation with signature}{45}{section.6.4}
+\contentsline {section}{\numberline {6.5}Learning from path to path}{47}{section.6.5}
+\contentsline {chapter}{\numberline {7}Conclusions and Future Work}{52}{chapter.7}
+\contentsline {chapter}{\numberline {8}Appendix}{53}{chapter.8}

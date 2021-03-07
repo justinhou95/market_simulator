@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017/W32TeX) (preloaded format=xelatex 2018.3.17)  6 MAR 2021 22:31
+This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017/W32TeX) (preloaded format=xelatex 2018.3.17)  7 MAR 2021 11:40
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -762,9 +762,9 @@ Overfull \hbox (12.61067pt too wide) in paragraph at lines 959--965
 File: figs/estimation4.png Graphic file (type QTm)
 <use  "figs/estimation4.png" > [37]
 File: figs/estimation5.png Graphic file (type QTm)
- <use  "figs/estimation5.png" > [38]
+ <use  "figs/estimation5.png" >
 File: figs/cvae5.png Graphic file (type QTm)
- <use  "figs/cvae5.png" >
+ <use  "figs/cvae5.png" > [38]
 File: figs/cvae6.png Graphic file (type QTm)
  <use  "figs/cvae6.png" >
 File: figs/cvae7.png Graphic file (type QTm)
@@ -775,8 +775,30 @@ File: figs/cvae9.png Graphic file (type QTm)
  <use  "figs/cvae9.png" >
 File: figs/cvae10.png Graphic file (type QTm)
  <use  "figs/cvae10.png" > [40]
+File: figs/cvae11.png Graphic file (type QTm)
+ <use  "figs/cvae11.png" >
+File: figs/cvae12.png Graphic file (type QTm)
+ <use  "figs/cvae12.png" >
+File: figs/cvae13.png Graphic file (type QTm)
+ <use  "figs/cvae13.png" > [41]
+File: figs/cvae14.png Graphic file (type QTm)
+ <use  "figs/cvae14.png" >
+File: figs/cvae15.png Graphic file (type QTm)
+ <use  "figs/cvae15.png" >
+File: figs/cvae16.png Graphic file (type QTm)
+ <use  "figs/cvae16.png" > [42]
+File: figs/cvae17.png Graphic file (type QTm)
+ <use  "figs/cvae17.png" >
+File: figs/cvae18.png Graphic file (type QTm)
+ <use  "figs/cvae18.png" >
+File: figs/cvae19.png Graphic file (type QTm)
+ <use  "figs/cvae19.png" >
+File: figs/cvae20.png Graphic file (type QTm)
+ <use  "figs/cvae20.png" > [43]
+File: figs/cvae21.png Graphic file (type QTm)
+ <use  "figs/cvae21.png" > [44]
 File: figs/sde1.png Graphic file (type QTm)
- <use  "figs/sde1.png" > [41]
+ <use  "figs/sde1.png" > [45]
 File: figs/sde2.png Graphic file (type QTm)
  <use  "figs/sde2.png" >
 File: figs/sde3.png Graphic file (type QTm)
@@ -784,46 +806,46 @@ File: figs/sde3.png Graphic file (type QTm)
 File: figs/sde4.png Graphic file (type QTm)
  <use  "figs/sde4.png" >
 File: figs/sde5.png Graphic file (type QTm)
- <use  "figs/sde5.png" > [42] [43]
+ <use  "figs/sde5.png" > [46] [47]
 File: figs/res1.png Graphic file (type QTm)
  <use  "figs/res1.png" >
 File: figs/res2.png Graphic file (type QTm)
- <use  "figs/res2.png" > [44]
+ <use  "figs/res2.png" > [48]
 File: figs/res3.png Graphic file (type QTm)
  <use  "figs/res3.png" >
 File: figs/res4.png Graphic file (type QTm)
  <use  "figs/res4.png" >
 File: figs/res5.png Graphic file (type QTm)
- <use  "figs/res5.png" > [45]
+ <use  "figs/res5.png" > [49]
 File: figs/res6.png Graphic file (type QTm)
  <use  "figs/res6.png" >
 File: figs/res7.png Graphic file (type QTm)
- <use  "figs/res7.png" > [46] [47]
+ <use  "figs/res7.png" > [50] [51]
 Chapter 7.
-[48
+[52
 
 ]
 Chapter 8.
-(./workingthesis.bbl [49
+(./workingthesis.bbl [53
 
-] [50
+] [54
 
-] [51] [52])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1185.
- [53]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1185.
+] [55] [56])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1241.
+ [57]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1241.
  (./workingthesis.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 1185.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 1185.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1185.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 1241.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 1241.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1241.
  ) 
 Here is how much of TeX's memory you used:
- 11036 strings out of 493005
- 154585 string characters out of 6129136
- 243627 words of memory out of 5000000
- 14810 multiletter control sequences out of 15000+600000
+ 11058 strings out of 493005
+ 154860 string characters out of 6129136
+ 243722 words of memory out of 5000000
+ 14821 multiletter control sequences out of 15000+600000
  24188 words of font info for 104 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  28i,21n,48p,1995b,447s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on workingthesis.pdf (55 pages).
+Output written on workingthesis.pdf (59 pages).

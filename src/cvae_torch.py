@@ -54,16 +54,20 @@ class Encoder(nn.Module):
         return mean, log_var
 
 class Decoder(nn.Module):
-    def __init__(self, latent_dim, hidden_dim, output_dim, condition_dim):
+    def __init__(self, latent_dim, hidden_dim, output_dim, condition_dim, outputpositive = True):
         super().__init__()
         self.latent_to_hidden = nn.Linear(latent_dim + condition_dim, hidden_dim)
         self.hidden_to_hidden = nn.Linear(hidden_dim, hidden_dim)
         self.hidden_to_out = nn.Linear(hidden_dim, output_dim)
         self.act = nn.LeakyReLU(0.3)
+        self.outputpositive = outputpositive
     def forward(self, x):
         x = self.act(self.latent_to_hidden(x))
         x = self.act(self.hidden_to_hidden (x))
-        generated_x = torch.sigmoid(self.hidden_to_out(x))
+        if self.outputpositive:
+            generated_x = torch.sigmoid(self.hidden_to_out(x))
+        else:
+            generated_x = self.hidden_to_out(x)
         return generated_x, generated_x
 
     
@@ -82,7 +86,8 @@ class DecoderLogsignature(Decoder):
     def forward(self, x):
         x = self.act(self.latent_to_hidden(x))
         x = self.act(self.hidden_to_hidden (x))
-        x = torch.sigmoid(self.hidden_to_out(x))
+#         x = torch.sigmoid(self.hidden_to_out(x))
+        x = self.hidden_to_out(x)
         B = x.size()[0]
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
@@ -170,4 +175,10 @@ class CVAE2(CVAE):
         self.decoder = DecoderLogsignature(latent_dim, hidden_dim, input_dim, condition_dim, order, N, d)
 
 
-    
+class CVAE0(CVAE):    
+    def __init__(self, input_dim, hidden_dim, latent_dim, condition_dim, BETA):
+        super().__init__(input_dim, hidden_dim, latent_dim, condition_dim, BETA)
+        self.decoder = Decoder(latent_dim, hidden_dim, input_dim, condition_dim, outputpositive = False)
+        
+        
+        
