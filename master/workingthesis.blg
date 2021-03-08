@@ -4,47 +4,49 @@ The top-level auxiliary file: workingthesis.aux
 The style file: acm.bst
 Database file #1: workingthesisbib.bib
 Warning--empty journal in abiri2019advantage
+Warning--empty year in bayerdeep
 Warning--empty journal in cont2001empirical
+Warning--empty journal in cont2004recovering
 Warning--empty journal in higgins2016beta
-You've used 35 entries,
+You've used 59 entries,
             2253 wiz_defined-function locations,
-            709 strings with 9595 characters,
-and the built_in function-call counts, 11475 in all, are:
-= -- 1099
-> -- 595
+            828 strings with 13586 characters,
+and the built_in function-call counts, 18979 in all, are:
+= -- 1810
+> -- 998
 < -- 0
-+ -- 254
-- -- 210
-* -- 879
-:= -- 1900
-add.period$ -- 103
-call.type$ -- 35
-change.case$ -- 208
++ -- 423
+- -- 352
+* -- 1475
+:= -- 3161
+add.period$ -- 174
+call.type$ -- 59
+change.case$ -- 351
 chr.to.int$ -- 0
-cite$ -- 38
-duplicate$ -- 399
-empty$ -- 867
-format.name$ -- 210
-if$ -- 2352
+cite$ -- 64
+duplicate$ -- 646
+empty$ -- 1429
+format.name$ -- 352
+if$ -- 3870
 int.to.chr$ -- 0
-int.to.str$ -- 35
-missing$ -- 37
-newline$ -- 175
-num.names$ -- 70
-pop$ -- 197
+int.to.str$ -- 59
+missing$ -- 61
+newline$ -- 294
+num.names$ -- 118
+pop$ -- 319
 preamble$ -- 1
-purify$ -- 175
+purify$ -- 294
 quote$ -- 0
-skip$ -- 273
+skip$ -- 436
 stack$ -- 0
-substring$ -- 635
-swap$ -- 113
+substring$ -- 1025
+swap$ -- 178
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 136
-warning$ -- 3
-while$ -- 104
-width$ -- 37
-write$ -- 335
-(There were 3 warnings)
+type$ -- 232
+warning$ -- 5
+while$ -- 172
+width$ -- 61
+write$ -- 560
+(There were 5 warnings)

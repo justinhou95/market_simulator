@@ -8,10 +8,17 @@
 \usepackage[shortlabels]{enumitem}
 
 \titleformat{\chapter}[display]
-  {\Huge\bfseries}{}{0pt}{\thechapter.\ } 
+  {\LARGE\bfseries}{}{0pt}{\LARGE\thechapter.\ } 
 
 \titleformat{name=\chapter,numberless}[display]
-  {\Huge\bfseries}{}{0pt}{}
+  {\LARGE\bfseries}{}{0pt}{\LARGE}
+
+
+
+
+
+
+
   
 
 % \theoremstyle{plain}
@@ -48,27 +55,34 @@
 
 \begin{titlepage}
    \begin{center}
-       \LARGE
-       \textbf{A Study of Data-driven Market Simulator}
+       \vspace{5cm}
+
+       \Large MASTER THESIS\\
+       \vspace{1cm}
+       
+       \LARGE \textbf{A Study of Data-driven Market Simulator}
        \\
-       \vspace{2cm}
-       \Large Master Thesis
- 
+       \vspace{1cm}
+       
+       \Large Songyan Hou\\
+       \vspace{0.5cm}
+
+       \textit{\large Supervisor:} \large Prof. Josef Teichmann\\
        \vspace{1.5cm}
 
-       \Large
-       Songyan Hou\\
+       \normalsize
+       Department of Mathematics\\
+       ETH Z\"urich\\
+
+       
  
        \vfill
 
        
-       \textit{\large Supervisor:}\\
+       
        \large
 
-       Prof. Dr. Josef Teichmann\\
-       \normalsize
-       Department of Mathematics\\
-       ETH Z\"urich\\
+       
 
        \vspace{0.8cm}
        Submitted: \today
@@ -77,19 +91,61 @@
 \end{titlepage}
 
 \begin{abstract}
-  asd
+  Data-driven market generator based on deep learning model provides a more flexible framework to stimulate financial time series. We briefly discuss the generative modelling approaches as well as evaluation metrics for financial time series and point out their main challenges and difficulties, such as small data set problem and irregular sampling problem. In order to address these problems in financial time series stimulation, we introduce a market generator based on variational autoencoders (VAEs) with signature features, which is utilized from rough paths theory. Furthermore, signature features are universal, which helps to construct a maximum mean discrepancy (MMD) test based on signature kernel. This MMD test overcome difficulties in evaluation between distributions on time series and can be computed efficiently by recursive algorithm. We further improve the performance of market generator by considering student-t prior VAEs and introducing a novel neural network structure with signature map embedded. Moreover, we accelerate the market generator by inventing a signature inversion algorithm based on autoencoder structure. Also, we present a generative model based on ridge regression on signature features, which provide very accurate stimulation given the distribution of driven processes. Finally, we present the numerical implementations of market generator on rough models as well as all other algorithms to support our results numerically.
 \end{abstract}
 
 \tableofcontents
-\chapter{Introduction}
+\chapter*{Acknowledgement}
+I would like to thank my supervisor Professor Josef Teichmann for endless help and instructions. Furthermore, I thank him very much for this interesting topic and directing me to the right direction, but also his encouragement motivating me to explore my own research interests. It is a great honor and pleasure to work with him on this fantastic topic. Also, I want to express my sincere thanks to my parents for their great love and endless support. Finally, I want to thank all my friends. Their accompany and help is one of my greatest memory during my master study.    
 
-\chapter{Financial times-series stimulation}
-\section{Challenges in financial scenario}
-\section{Stylized facts and evaluation of similarity}
-\section{Classical and modern model}
+\chapter{Introduction}\label{introduction}
+There is growing interests in applications of deep leaning to quantitative finance in \cite{bayerdeep, buehler2019deep, cuchiero2020generative, cont2004recovering, henry2019martingale, horvath2019deep, ruf2020neural, zhang2019stock}, where the power of deep neural network in pricing, hedging, modeling, and portfolio optimization have been proven. In all fantastic applications above, deep solvers are trained on market data to learn an optimal control when faced with market distributions. However, in practice, market data are usually scare for training. One approach is to use classical model to generate data but classical model are recently challenged by real market data because classical model are usually too simple and static to reflect the market. Another approach is the data-driven market generator, which learns from limited market data to generate sufficient samples which has similar distribution to the real market data. In this thesis, we develop a flexible generative model based on variational autoencoder (VAEs) \cite{kingma2019introduction} and signatures of paths \cite{friz2020course}, which is first introduced in \cite{buehler2020data}. This model is capable to generate realistic synthetic data with scare data, and also this model can generate market data conditioned on history data. we improve the performance of this model in both speed as well as performance, and we fix some numerical weakness in practical implementations. Furthermore, we introduce a novel structure of neural networks in this thesis.  
 
-\chapter{Signature feature}
-In this chapter, we give a brief introduction to the signature feature of a path and some variation of signature feature such as log-signature, low-rank-signature and random-signature. Moreover, we discuss the expectation of these signature based features of a stochastic process and emphasize their characteristic ability of the law of stochastic process. For simplicity and readability, we restrict our introduction to the space of continuous bounded variation paths from a compact time interval $J$ to a Euclidean space $E = \R^{d}$ denoted by $\mathcal{C}^{1}_{0}(J,E)$. We postpone the discussion of semi-martingales and rough paths taking values in Banach space $E$ to the appendix and kindly invite interested readers to the comprehensive and rigorous introduction of signature feature in \cite{friz2020course} \cite{lyons2007differential}.  
+
+The thesis is organized as follows: In this chapter, we state the times-series stimulation problem with an outline of motivations and potential applications such as data anonymisation \cite{kondratyev2020data}. Furthermore, we discuss the challenges of market generating in financial scenario such as roughness \cite{gatheral2018volatility}. Then we contrast the main differences between classical methods and data-driven generators, also pointing out new challenges for generative models, such as the choice of evaluation metrics. In chapter \ref{signaturefeature}, we give a brief introduction to the signature feature of a path, focusing on the universality of the normalized signature map \cite{chevyrev2018signature} as well as properties of multiple variations of signature features. In chapter \ref{VariationalAutoencoders}, we give a brief introduction to the variational autoencoders (VAEs) \cite{kingma2013auto} and some variations of VAEs. In chapter \ref{marketgenerator}, we present our methodology to construct the market generator with details. In chapter \ref{NumericalImplementation}, we provide numerical implementations of evaluation based on signatures, inverting algorithm from log-signatures to paths, performance of our market generator on rough models, and paths stimulation with signatures. The algorithm developed in this paper and all details of numerical implementations are available in the Github repository provided with this paper Github repository: \url{https://github.com/justinhou95/market_simulator}.
+
+\section{Financial times-series stimulation}
+The recent developments of deep learning in financial applications is one of the main motivation to construct a good market generator because the quality of input data determines the performance of deep solvers. There are many other situations where market simulator are need.
+\begin{itemize}
+  \item  \textbf{Data anonymisation:} financial and medical data are usually confidential. If only the distribution of data matters, data generator can generate the distribution indifferent from the true data without leaking the true data. 
+  \item \textbf{Small original training data sets:} financial data are usually expensive and scare. Data generator augment the data sets for more complex application avoid over fitting to the observed data.
+  \item \textbf{Back testing:} back testing is important for trading strategy and the market generator avoid overfitting to historical data.
+  \item \textbf{Risk management:} market simulator can be used to generate synthetic paths to estimate various risk metrics, such as Value at Risk (VaR).
+\end{itemize}
+Motived by these applications, many market generator have been developed, so we shortly recall the history.
+\subsection{Classical and modern model}
+Numerical simulation of financial time series has rich literatures.
+\begin{itemize}
+  \item \textbf{Classical models:} Classical models includes stochastic market models and autoregressive models. The advantages of classical models is that they are explainable and reliable but they are less flexible for complicated data. A generalization of classical models is to add more parameters and consider their weighted average \cite{duembgen2014estimate}. 
+  \item \textbf{Modern models:} Generative models in machine learning learn a map from randomness to synthetic data which has the same distribution of true data. Therefore, modern model implicitly approximates the true distribution without explicitly computing the distribution. 
+\end{itemize}
+Among all generative models, there are two classes of deep generative models which are very successful and widely used: Generative Adversarial Networks (GANs) and Variational Autoencoders (VAEs). GANs were first introduced in 2014 by Goodfellow et al. in \cite{mirza2014conditional} and soon gained it's reputation in generating high resolution images and images classification tasks. VAEs were first introduced in 2013 by Kingma et al. in \cite{kingma2013auto}, as a variational bayesian inference with autoencoder structure which was proposed in \cite{ballard1987modular}. GANs are undoubtedly the most popular model in generative models and have been proven successful in many areas . On the other hand, recent theoretical connections between autoencoders and variational bayesian inference draw more attentions to VAEs as well, see \cite{kingma2019introduction}. Usually, GANs are capable to generate high precision samples but they suffer from data-hunger and instability in training phase, see \cite{arjovsky2017towards}. On the other hand, VAEs are easy to train and don’t suffer from mode collapse, but mostly produce smoother (blurry in images scenario) samples, see \cite{karras2017progressive}. In our market generating task, recent works using GANs to generate markets data includes the following: \cite{bonnier2019deep, cuchiero2020generative, henry2019generative, buehler2019deep, wiese2020quant, xu2020cot}. For VAEs, to date the only literature using VAEs for data generation is \cite{buehler2020data}. In this thesis, we focus on VAEs models due to challenges that arise in the setting of small data set of financial time series.
+\subsection{Challenges of financial time series stimulation}
+In the scenario of financial time series, a number of features of financial data, commonly referred to as stylized facts \cite{cont2001empirical}, need to be considered carefully when designing market generator. 
+\begin{itemize}
+  \item \textbf{Small data set:} financial data like S\&P500 and DAX are relatively small data set.
+  \item \textbf{Non-stationary: } financial data are in general non-stationary, therefore it need special preprocessing to satisfies i.i.d. assumptions for training data. 
+  \item \textbf{Heavy tails and aggregational Gaussianity:} financial data are believed non-gaussian and heavy-tail general, see \cite{amaral2000distribution}. 
+
+  \item \textbf{No arbitrage} sometimes financial models are required to satisfies no arbitrage condition.
+
+  \item \textbf{Volatility clustering: } absence of autocorrelation of asset returns, but slow decay of autocorrelation in absolute returns, see \cite{cont2001empirical}. 
+
+  \item \textbf{Discrete representation of continuous path:} finite horizon observation might fail in characterizing specific properties in financial data. For example, one can construct examples that are indistinguishable from one another on a finite set of marginals, but leads to arbitrarily different hedging strategies and option prices in continuous time, see \cite{brigo2019probability}.
+
+  \item \textbf{Leverage effect:} Asset returns has negative correlation with the volatility of asset returns, see \cite{bouchaud2001leverage}.
+
+  \item \textbf{Roughness:} Financial data are observed rough in values as well as volatility, see \cite{gatheral2018volatility}.
+
+  \item \textbf{Irregular sampling:} missing data and highly oscillatory data are common in financial scenario, see \cite{kidger2020neural}.
+\end{itemize}
+On one hand, the market generator should be robust enough to overcome problems in financial data (small data set, non-stationary, irregular sampling,  non-robust representation). On the other hand, the market generator should be expressive enough to generate rough, heavy tails synthetic data. These challenges motivate us to introduce the signature feature map. Signature features have the following properties: (i) efficiently representing data which are important for hedging problems, see \eqref{linear_control} (ii) robustness in representing data, see \cite{brigo2019probability} (iii) robustness in irregular sampling, see \cite{liao2019learning} (iv) Invariant under translation and reparameterization, see Proposition \ref{invariant} (v)          uniqueness up to tree-like equivalence, see Theorem \ref{uniqueness} (vi) universality, see \ref{weakuniversality} (vii) efficiently computation by recursive algorithm, see \cite{kiraly2019kernels} and powerful python packages available. Moreover, signatures provides a generic way evaluating the closeness between different distributions of time series by considering the Maximum
+Mean Discrepancy (MMD) test \cite{gretton2012kernel} based on signature kernel introduced by Chevyrev and Oberhauser in \cite{chevyrev2018signature}. Traditional distributional metrics and divergences usually have the following weakness: (i) lack of universality because metric is designed for specific application (ii) need of explicit distribution (KL-divergence and Wasserstein metric) (iii) being hard to compute or even ard to define on paths space (iii) fail to characterize the hedging performance of paths (iv) need of stationary assumption. However, Maximum Mean Discrepancy (MMD) test based on signature kernel overcomes all the difficulties stated above because signature is defined on path space, and more importantly, the universality of the normalized signature map \cite{chevyrev2018signature}. Next, we provide an introduction with details on properties of signatures in the next chapter.    
+
+
+
+\chapter{Signature feature}\label{signaturefeature}
+In this chapter, we give an introduction to the signature feature of a path and some variation of signature feature such as log-signature, low-rank-signature. Moreover, we discuss the expectation of signatures of a stochastic process and emphasize their characteristic ability of the law of stochastic process. For simplicity and readability, we restrict our introduction on the space of continuous bounded variation paths from a compact time interval $J$ to a Euclidean space $E = \R^{d}$ denoted by $\mathcal{C}^{1}_{0}(J,E)$. We refer the discussion of semi-martingales and rough paths taking values in Banach space $E$ to \cite{friz2020course, lyons2007differential} and kindly invite interested readers to the comprehensive and rigorous introduction of signature feature in \cite{friz2020course, lyons2007differential}.  
 
 \section{Signature}
 We start the introduction from the tensor algebra in which our signature feature takes value. We consider the non-commuting formal power series of tensors with formal indeterminates as basis of $E$. 
@@ -143,7 +199,7 @@ and $T^{(n)}(E)$ can be considered as a subspace of $T((E))$.
       &= \sum_{i_{1},\cdots,i_{k} = 1}^{d} \int_{t_{1}<\cdots< t_{k} \in J}dX_{t_{1}}^{i_{1}}\cdots dX_{t_{k}}^{i_{k}} \cdot e_{i_{1}}\otimes\cdots\otimes e_{i_{k}} \\
     \end{split}
   \end{equation}
-  Let $\mathbf{Sig}^{(n)}_{J}$ denote the truncated signature map up to order $n$
+  Further more, we let $\mathbf{Sig}^{(n)}_{J}$ denote the truncated signature map up to order $n$
   \begin{equation}
     \mathbf{Sig}^{(n)}_{J}(X) = (1, \mathbf{s}_{1},\cdots, \mathbf{s}_{M}) \in \mathbf{T}^{(n)}(E).
   \end{equation}
@@ -157,7 +213,7 @@ and $T^{(n)}(E)$ can be considered as a subspace of $T((E))$.
 
 \subsection{Signature map}
 We expect a good feature map to capture important information while ignoring irrelevant ones. First observation is the the signature feature is invariant of starting point because $d(X_{t} - X_{0}) = dX_{t}$. Moreover, it is invariant of reparametrization.
-\begin{proposition}[Invariant under reparametrization]
+\begin{proposition}[Invariant under reparametrization]\label{invariant}
   Let $X \in \mathcal{C}^{1}_{0}([S_{1},T_{1}],E)$ and  $\tau\colon [S_{1},T_{1}] \to [S_{2},T_{2}]$ a non-decreasing surjective reparametrization. Then 
   \begin{equation}
     \mathbf{Sig}_{[S_{2},T_{2}]}(X_{\tau(\cdot)}) = \mathbf{Sig}_{[S_{1},T_{1}]}(X) 
@@ -171,8 +227,8 @@ We expect a good feature map to capture important information while ignoring irr
     \end{split}
   \end{equation}
 \end{proof}
-From the invariant property of reparametrization, we notice that signature map is not injective. However, signature feature is injective up to tree-like equivalence $\sim_{t}$ which we detailed in appendix, and obviously time-reparametrization is included in tree-like equivalence. We define $\mathcal{P}_{0}^{1} = \mathcal{C}^{1}_{0}([0,T],E) / \sim_{t}$ the quotient space up to tree-like equivalence endowed with quotient metric.  
-\begin{theorem}[Weak uniqueness \cite{boedihardjo2016signature}] 
+From the invariant property of reparametrization, we notice that signature map is not injective. However, signature feature is injective up to tree-like equivalence $\sim_{t}$ which we detailed in \cite{boedihardjo2016signature}, and obviously time-reparametrization is included in tree-like equivalence. We define $\mathcal{P}_{0}^{1} = \mathcal{C}^{1}_{0}([0,T],E) / \sim_{t}$ the quotient space up to tree-like equivalence endowed with quotient metric.  
+\begin{theorem}[Weak uniqueness \cite{boedihardjo2016signature}] \label{uniqueness}
   $\mathbf{Sig}_{[0,T]}$ is injective on $\mathcal{P}_{0}^{1}$.
 \end{theorem}
 \begin{proof}
@@ -200,14 +256,14 @@ If we add time as an additional strictly increasing coordinate into path ie. $\o
   Thus, $\mathbf{Sig}_{[0,1]}$ is neither surjective nor the range of it a linear subspace of $\mathbf{T}(E)$.
 \end{proof}
 
-\begin{theorem}[Weak universality]
+\begin{theorem}[Weak universality]\label{weakuniversality}
   Let $A$ be a compact set of $\mathbf{Sig}(\mathcal{C}^{1}_{0}(J,E))$, then for all $f \colon A \to \R$ continuous and for all $\epsilon > 0$, there exists a linear functional $L \in \mathbf{T}(E)^{*}$ such that 
   \begin{equation}
     \sup_{\mathbf{a}\in A}\lVert f(\mathbf{a}) - L(\mathbf{a})\rVert \leq \epsilon
   \end{equation}
 \end{theorem}
 \begin{proof}
-  Proof relies on the Stone-Weierstrass theorem and the shuffle product property of the signature detailed in appendix, see \cite{liao2019learning}.
+  Proof relies on the Stone-Weierstrass theorem and the shuffle product property of the signature detailed in \cite{liao2019learning}.
 \end{proof}
 
 
@@ -293,7 +349,7 @@ Instead of viewing signature as a static object, we can consider signature strea
 \begin{remark}
   Similar result holds for smooth vector field with some additional boundness assumption and the proof is in alignment with the argument above, see \cite{liao2019learning}. 
 \end{remark}
-Despite nice properties as feature map, signature feature suffers from dimension explosion w.r.t truncation order. Consider a path $X \in \mathcal{C}^{1}_{0}([0,T],\R^{d})$ and the truncated signature of $X$ up to order $n$ in $\mathbf{T}^{(n)}(\R^{d}) \subseteq \bigoplus_{k\leq n} (\R^{d})^{\otimes k} $ which has dimension $1 + d + \cdots + d^{n} = \frac{d^{n+1} - d}{d-1}$ growing exponentially w.r.t the truncation order $n$. Therefore, we would like to explore some low-rank approximations of signature feature. 
+Despite nice properties as feature map, signature feature suffers from dimension explosion w.r.t truncation order. Consider a path $X \in \mathcal{C}^{1}_{0}([0,T],\R^{d})$ and the truncated signature of $X$ up to order $n$ lies in $\mathbf{T}^{(n)}(\R^{d}) \subseteq \bigoplus_{k\leq n} (\R^{d})^{\otimes k} $ which has dimension $1 + d + \cdots + d^{n} = \frac{d^{n+1} - d}{d-1}$ growing exponentially w.r.t the truncation order $n$. Therefore, we would like to explore some low-rank approximations of signature feature. 
 \section{Log-signature}
 From Proposition \ref{surjective}, we know that $\mathbf{Sig}_{[0,1]}$ is neither surjective nor the range of which a linear subspace of $\mathbf{T}(E)$. In Example \ref{linear}, for $X_{t} = t\mathbf{x} \in \R^{d}$, then 
   \begin{equation}
@@ -587,7 +643,7 @@ We extend the recursive method from discrete signature to tensor with similar re
   \end{definition}
   Similar to log-signature, the inner product between truncated signature and rank-1 tensor map the signature space to a low dimensional space $\R$. This projection is linear, computational cheap, and more importantly trainable. The choice of rank-1 tensors gives us the freedom to choose the output space dimension as well as the direction of projection.
   \begin{definition}
-    Let $(\mathbf{l}_{l})_{l=0}^{L}$ a sequence of rank-1 tensors in $\mathbf{T_{1}}$ and let $\mathbf{sig}_{[0,N]}$ the discrete signature, then we denote $\mathbf{LRsig}_{[0,N]}$ the low-rank signature such that 
+    Let $(\mathbf{l}_{l})_{l=0}^{L}$ be a sequence of rank-1 tensors in $\mathbf{T_{1}}$ and let $\mathbf{sig}_{[0,N]}$ the discrete signature, then we denote $\mathbf{LRsig}_{[0,N]}$ the low-rank signature such that 
   \begin{equation}
     \mathbf{LRsig}_{[0,N]} = \big(\langle \mathbf{l}_{l} , \mathbf{sig}_{[0,N]} \rangle_{\mathbf{T}_{1}(E)}\big)_{l=0}^{L} \in \R^{L}
   \end{equation} 
@@ -596,8 +652,8 @@ We extend the recursive method from discrete signature to tensor with similar re
   From the recursive algorithm above, we know that computing the low-rank signature stream is as cheap as computing the low-rank signature. Unlike signature stream, low-rank signature stream still in a low dimensional space, so we may again apply the low-rank signature stream to it. Thus, we may stack many levels of signature stream on the original path and this has been proved successful dealing with sequential data, see \cite{toth2020seq2tens}.
 
   
-\chapter{Variational Autoencoders}
-In this chapter, we give a brief introduction to the variational autoencoders (VAEs) \cite{kingma2013auto} and some variations of VAE such as conditional VAEs (CVAEs) \cite{sohn2015learning}, $\beta-$VAEs \cite{higgins2016beta}, student-VAEs \cite{abiri2020variational}, and gaussian process VAEs (GP-VAEs) \cite{fortuin2020gp}. Variational autoencoders is a generative model which simulates how the data is generated under certain presumed distribution. In short, VAEs are variational bayesian inference on latent variable models with likelihood and posterior described by neural networks. In the scenario of generating time series, there are in general two frameworks to apply variational autoencoders. First is to assume a bayesian model with both observable variables and latent variables taking values in space of time series \cite{fortuin2020gp} \cite{toth2020seq2tens}, for example taking latent space as a gaussian process in GP-VAEs. Another approach is to first consider an appropriate feature map from time series to a finite dimensional features space and apply VAE on this feature space. After the training of VAE on features space, we generate new samples on the feature space and transform those samples on feature space back to time series with the inverse map of the feature map \cite{buehler2020data}. More details and background information on VAEs can be found in \cite{kingma2019introduction}.
+\chapter{Variational Autoencoders}\label{VariationalAutoencoders}
+In this chapter, we give a brief introduction to the variational autoencoders (VAEs) \cite{kingma2013auto} and some variations of VAE such as conditional VAEs (CVAEs) \cite{sohn2015learning}, $\beta-$VAEs \cite{higgins2016beta}, student-VAEs \cite{abiri2020variational}, and gaussian process VAEs (GP-VAEs) \cite{fortuin2020gp}. Variational autoencoders is a generative model which simulates how the data is generated under certain presumed distribution. In short, VAEs are variational bayesian inference on latent variable models with likelihood and posterior described by neural networks. In the scenario of generating time series, there are in general two frameworks to apply variational autoencoders. First is to assume a bayesian model with both observable variables and latent variables taking values in space of time series \cite{fortuin2020gp} \cite{toth2020seq2tens}, for example taking latent space as a gaussian process in GP-VAEs. Another approach is to first consider an appropriate feature map from time series to a finite dimensional features space and apply VAE on this feature space. After the training of VAE on features space, we generate new samples on the feature space and transform those samples on feature space back to time series with the inverse map of the feature map \cite{buehler2020data}. In this thesis, we focus on the second one. More details and background information on VAEs can be found in \cite{kingma2019introduction}.
 \section{Variational autoencoders}
 Variational autoencoders are variational inference on deep latent variable model. Deep latent variable models consist of observable random variable $x$, latent random variable $z$, and parameter $\theta$. The joint distribution $p_{\theta}(x,z)$ of the deep latent variable model is parameterized by neural networks. For example, we may choose $z$ be standard normal distribution and $x$ a normal distribution with mean $\mu = \mathbf{NN}(z)$ and variance $1$, where $\mathbf{NN}$ is a neural network. Moreover, we call $p_{\theta}(z) = p(z)$ the \textit{prior} (independent with $\theta$), $p_{\theta}(z|x)$ the \textit{posterior}, $p_{\theta}(x|z)$ the \textit{conditional distribution} and $p_{\theta}(x)$ the \textit{marginal likelihood}. The big advantage of deep latent variable model is that even when the prior $p(z)$ and conditional distribution $p(x|z)$ are explicit and simple, the marginal likelihood $p_{\theta}(x)$ can be very expressive due to the universal approximating capacity of neural network. However, the price to pay for expressive marginal likelihood is the intractability of marginal likelihood, namely having no analytic solution or efficient estimator for it. By Bayes' rule 
 $$p_{\theta}(x) = \frac{p_{\theta}(x,z)}{p_{\theta}(z|x)}.$$
@@ -700,7 +756,7 @@ In some case, the KL-divergence term even has a analytic formula.
 % \end{equation}
 % where $q$ is a simple distribution such as normal distribution and $\mathbf{NN}$ a neural network. 
 \section{Variations of VAEs}
-The classical VAEs assume gaussian prior and ELBO loss. There are multiple variations of classical VAEs suitable for different scenario. In this section we briefly introduce some variations of VAEs which we use as a block of our market generator in numerical experiments .
+The classical VAEs assume gaussian prior and ELBO loss. There are multiple variations of classical VAEs suitable for different scenario. In this section we briefly introduce some variations of VAEs which we use as a block of our market generator introduced in the next chapter.
 \subsection{Conditional VAEs }
 Condition VAEs \cite{sohn2015learning} are typically used when your data points are labeled and you want to generate data points in a specific class. In financial time-series generating task, we aim at generating the distribution of future stock process given the information known, namely the conditional distribution of time-series. Therefore, we apply the conditional VAEs with conditions being the information known and data being the time series. Let $c$ be conditions, $x$ be time series, and $z$ be latent variable. Let $\mathbf{NN}_{\phi}$ and $\mathbf{NN}_{\theta}$ be two neural networks. Then conditional VAEs has the following structure
 \begin{equation}
@@ -772,8 +828,8 @@ All variations of VAEs above are designed for samples and latent variables on Eu
  is successful if used in the context of robust dynamic topic modeling where similar multi-scale time dynamics occurs.
 
 
-\chapter{Market Generator}
-In this chapter, we combine signature features and variational autoencoders introduced above to construct a market generator. Recall our problem setting: By observing one realization of stochastic process, we wish to infer the distribution of the process and stimulate paths under the learnt distribution. For example, given the S\&P index of last 12 months, we wish to construct market generator which generates possible paths of S\&P index of next months for us, and hopefully generating paths of S\&P index to the next two months. Our algorithm can be subdivided into the following five parts, of which we present a brief overview below:
+\chapter{Market Generator}\label{marketgenerator}
+In this chapter, we combine signature features and variational autoencoders introduced above to construct a market generator. Recall our problem setting: by observing one realization of stochastic process, we wish to infer the distribution of the process and stimulate paths under the learnt distribution. For example, given the S\&P index of last 12 months, we wish to construct market generator which generates possible paths of S\&P index of next months for us, and hopefully generating paths of S\&P index to the next two months. Our algorithm can be subdivided into the following five parts, of which we present a brief overview below:
 \begin{enumerate}[start=1,label={( Step \arabic*):}]
   \item \textbf{Time series splitting:} Split single realization of path $(x_{0:N})$ to multiple subpaths $(x_{i:i+n})_{i=1}^{m}$. This subdivision helps to generate multiple samples for training. 
   \item \textbf{Path to signature features:} Applying the signature feature map to $m$ subpaths $(x_{i:i+n})_{i=1}$ gives $m$ samples on $\R^{d}$, where $d$ depends on the choice of signature feature map.   
@@ -800,30 +856,24 @@ Since Brownian motion has increment increment, splitting the difference of log r
 \end{equation*}
 where $0 = t_{0} \leq t_{1} \leq \cdots \leq t_{m+1} = N$. Note that this is not a equal length division since days in months different and there might be some days data missing. However, this inconsistency in division as well as missing data is not a problem to our model, because we will later consider the log-signature feature of each subpath. The dimension of log-signature only depends on our truncation order and the calculation of log-signature is robust to missing data. 
 \section{Path to signature features}
-After splitting path to samples of subpaths, we apply a feature map on each subpath and here our feature map is the log-signature. We choose log-signature motivated by the following reasons
+After splitting path to samples of subpaths, we apply a feature map on each subpath and here our feature map is the log-signature. We choose signature based feature and in particular the log-signature motivated by the following reasons
 \begin{enumerate}[(i)]
   \item Signature type features stores path information in an efficient way by Example \ref{lcde}.
   \item Expected normalized signature characterize the law of stochastic process by Corollary \ref{equalequal}.
   \item Signature can be directly used to compute signature kernel evaluating the MMD distance between distribution on paths by \eqref{eq348}.
-  \item log-signature has the same information as signature but store them in a more compact way, by Proposition \ref{logsignatureorder}. 
+  \item Log-signature has the same information as signature but store them in a more compact way, by Proposition \ref{logsignatureorder}. 
   \item The image of signature space is not a linear subspace of tensor space but the range of truncated log-signature is the truncated Lie series over $E$ up to the same order by Theorem \ref{truncatedLieseries}.
   \item Tensor-algebra exponential of the generated log-signatures recover the group-like (shuffle product) property of signature, see \cite{lyons2007differential}.
-  \item the numerical log-signature is more robust than signature, by Example  
-  \item signature feature eliminates pricing and hedging ambiguities problem addressed in and signature can be directly used for pricing, see.
+  \item The numerical log-signature is more robust than signature. 
+  \item Signature features eliminate pricing and hedging ambiguities problem addressed in and signature can be directly used for pricing, see \cite{brigo2019probability}.
 \end{enumerate} 
 We additional apply a lead-lag transformation \cite{flint2016discretely} to path before computing the log-signature features of the subpath. This is because the signature of a path after lead-lag transformation helps to capture the volatility of a path, which is of vital importance in finance. 
 
 \section{Variational autoencoder on signature features}
-Given $m$ many samples on log-signature space denoted by $(X_{i})_{i=1}^{m}$, we build a generative model and train it with samples. Arguably, the most popular generative models are GANs and VAEs. We choose VAEs motivated by the following considerations. 
-\begin{enumerate}[(i)]
-  \item VAEs require considerably less data for training than GANs 
-  \item VAEs are in general more stable in training than GANs
-  \item VAEs are less prone to overfitting than GANs
-\end{enumerate}
-We consider student-t prior in order to recover a heavy-tail distribution observed commonly in financial data. Also, we optimize the $\beta$-ELBO loss in training to balance the reconstruction loss and KL-divergence. If we further want to learn the conditional distribution w.r.t previous information, we can apply conditional VAEs to generate conditional distribution. 
+Given $m$ many samples on log-signature space denoted by $(X_{i})_{i=1}^{m}$, we build a generative model and train it with samples. We feed log-signatures of samples in to the variational autoencoder for training. We consider student-t prior in order to recover a heavy-tail distribution observed commonly in financial data. Also, we optimize the $\beta$-ELBO loss in training to balance the reconstruction loss and KL-divergence. If we further want to learn the conditional distribution w.r.t previous information, we can apply conditional VAEs to generate conditional distribution. In the numerical implementation, we also include a signature computing layer in the decoded part of VAE in order to make sure the output of VAE lie in the right subset. Details of configuration of VAE are introduced in the next chapter as well as the source code in Github repository: \url{https://github.com/justinhou95/market_simulator}. 
 
 \section{Signature features to path}
-After the training of model, we generate samples on the log-signature space. Now we need to inverse a log-signature to a path. The signature of a path uniquely determines the path itself up to tree-like equivalence but reverting signature to path is a computationally a highly non-trivial task and currently a topic of active research. In ,they develop an evolutionary algorithm by mimicking to some extent biological evolution. They start with an initial population of random paths, and iteratively select the paths whose signatures are closest to the target signature, and breed these paths and introduce mutations to generate a new generation of paths until we get a population of paths whose signature are close to the target signature. However, the revolution algorithm is very slow in optimization and reverting task of each signature need a restart of the evolution procedure. Therefore, we develop a new neural network based solution to inverse the signature. Our method is much faster than evolution algorithm and can be trained to deal with a collection of signatures once trained. Our approach is to construct an autoencoder with encoder be a neural network and decoder be the log-signature transformation. We train our autoencoder by minimizing the $L^{2}$ error between input log-signature with the output of autoencoder. Once trained, we consider the encoder as a good inverse function of log-signature. This method can be trained w.r.t one samples in order to reverse this single sample in log-signature space. Moreover, the parameter in encoder does not change too much when we are training it to reverse different samples. Therefore, we can leverage the parameter trained before to start our training for the next sample, which accelerates the training procedure. Also, we can pre-trained the model on a collection of log-signature and use the pre-trained model to inverse a sample without training.  
+After the training of model, we generate samples on the log-signature space. Now we need to inverse a log-signature to a path. The signature of a path uniquely determines the path itself up to tree-like equivalence but reverting signature to path is a computationally highly non-trivial task and currently a topic of active research. In \cite{buehler2020data}, they develop an evolutionary algorithm by mimicking to some extent biological evolution. They start with an initial population of random paths, and iteratively select the paths whose signatures are closest to the target signature, and breed these paths and introduce mutations to generate a new generation of paths until we get a population of paths whose signature are close to the target signature. However, the revolution algorithm is very slow in optimization and reverting task of each signature need a restart of the evolution procedure. Therefore, we develop a new neural network based solution to inverse the signature. Our method is much faster than evolution algorithm and can be trained to deal with a collection of signatures once trained. Our approach is to construct an autoencoder with encoder be a neural network and decoder be the log-signature transformation. We train our autoencoder by minimizing the $L^{2}$ error between input log-signature with the output of autoencoder. Once trained, we consider the encoder as a good inverse function of log-signature. This method can be trained w.r.t one samples in order to reverse this single sample in log-signature space. Moreover, the parameter in encoder does not change too much when we are training it to reverse different samples. Therefore, we can leverage the parameter trained before to start our new training for the next sample, which accelerates the training procedure. Also, we can pre-trained the model on a collection of log-signature and use the pre-trained model to inverse a sample without training.  
 
 \section{Evaluation of model}
 We evaluate the goodness of market generator by computing the MMD difference between the true distribution $\P$ and the generated distribution $\mathbb{Q}$ on path space. 
@@ -846,9 +896,7 @@ test statistic:
   \end{equation*}
 \end{theorem}
 
-
-
-They also pointed out that the choice of threshold is conservative and can be improved by using data-dependent bounds. An alternative is to apply a permutation test. We refer to the MMD testing literature for many more details and improvements \cite{gretton2012kernel, gretton2009fast, chwialkowski2016kernel, sejdinovic2013equivalence, jitkrittum2016interpretable, sriperumbudur2010hilbert}.
+They also pointed out that the choice of threshold is conservative and can be improved by using data-dependent bounds. An alternative is to apply a permutation test. We refer to the MMD testing literature for many more details and improvements \cite{gretton2012kernel, gretton2009fast, chwialkowski2016kernel, sejdinovic2013equivalence, jitkrittum2016interpretable, sriperumbudur2010hilbert}. Details of MMD computing are postpone to the next chapter with numerical results, where we introduce some technical improvement to overcome the instability of normalized signature kernel in scaling problem.
 
 
 
@@ -856,7 +904,7 @@ They also pointed out that the choice of threshold is conservative and can be im
 % \section{Inverse the log-signature}
 % \section{Evaluation with lifting and normalizing}
 
-\chapter{Numerical Implementation}
+\chapter{Numerical Implementation}\label{NumericalImplementation}
 In this chapter, we present numerical implementations of our algorithm. We present numerical comparisons between different evaluation metrics and inversion algorithms. Then we show numerical results of market generator introduced last chapter. At the end of this chapter, we supplement numerical examples highlighting the efficiency of signature features and provide a new approach to stimulate time series. 
 
 
@@ -934,7 +982,7 @@ As we have discussed in previous chapter, efficient evaluation of the similarity
       \langle\triangle\kappa_{X_{i}}, \triangle\kappa_{Y_{j}}\rangle\approx\kappa(X_{i+1},Y_{j+1}) + \kappa(X_{i},Y_{j}) - \kappa(X_{i},Y_{j+1}) - \kappa(X_{i+1},Y_{j}),
     \end{equation}
 \end{itemize}
-Notice that even though normalized signature kernel scales all samples in a `smooth' (Lipschitz here ) way but all signatures are scaled by different factor. A direct consequence is that $X$ will be consider as the same as $\lambda X$ for all $\lambda > 1$ if the norm of signatures are large. To overcome this scaling problem, we first normalize all signatures by the mean of scaling factor among all samples. This method works very well in practice when the norm of signatures are large. An alternative to to improve performance is to consider Lifted signature kernel. We first lift paths to a RKHS space and then compute the signature. It is surprising that this kernel can also be computed efficiently with the approximation \eqref{approkernel} and the recursive algorithm in \cite{chevyrev2018signature}. We show that this lifting greatly increase the performance but the drawback is that this kernel can not be computed from signature. 
+Notice that even though normalized signature kernel scales all samples in a `smooth' (in fact Lipschitz here) way but all signatures are scaled by different factor. A direct consequence is that $X$ will be consider as the same as $\lambda X$ for all $\lambda > 1$ if the norm of signatures are large. To overcome this scaling problem, we first normalize all signatures by the mean of scaling factor among all samples. This method works very well in practice when the norm of signatures are large. An alternative to to improve performance is to consider Lifted signature kernel. We first lift paths to a RKHS space and then compute the signature. It is surprising that this kernel can also be computed efficiently with the approximation \eqref{approkernel} and the recursive algorithm in \cite{chevyrev2018signature}. We show that this lifting greatly increase the performance but the drawback is that this kernel can not be computed from signature. 
 \subsection{Separating distributions}
 Firstly, we compare the signature kernel with the signature kernel after lifting. We choose the same numerical case as in \cite{chevyrev2018signature}, the task of differentiating the following two distributions. 
  \begin{figure}[H]
@@ -1125,7 +1173,7 @@ We approximate the signature by discrete growing signature. This is important be
     0.15& 0.05
   \end{bmatrix} \neq 0
 \end{equation*} 
-Unfortunately, all python packages we know available so far (including esig, iisignature, and Signatory) only support truncated discrete signature but not support growing signature. We approximate the true path with Euler approximation on a very fine grid.
+Unfortunately, all python packages we know available so far (including esig \url{https://esig.readthedocs.io/}, iisignature \cite{reizenstein2018iisignature}, and Signatory \cite{kidger2020signatory}) only support truncated discrete signature but not support growing signature. We approximate the true path with Euler approximation on a very fine grid.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/sde1.png}
@@ -1222,8 +1270,6 @@ However, it should be pointed out that this linear relation only holds when we c
   \caption{Splitting paths}
 \end{figure}
 We propose to fix this non-linearity problem by approximate the relation between $X_{s}$ and $M^{i_{1},\cdots,i_{m}}_{i,j}$ by some nonlinear function and more research need to be done in future work. Also, we need to keep in mind that this is not a generative model itself because we are learning the dependency between driving process and controlled process by knowing their value under same random seed. Therefore, in order to generate new samples, we still need to know the distribution of driving process in advance. This might be useful if the target time series you wish to generate is too complicated, but you know that it is driven by some simple process, of which you know the distribution. In this case, as long as you can observe both the target time series and the simple process, you can apply this methodology to generate new samples.
-
-\chapter{Conclusions and Future Work}
 
 
 \nocite{*}
