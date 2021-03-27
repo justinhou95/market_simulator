@@ -1,7 +1,7 @@
 \BOOKMARK [0][-]{chapter.1}{Introduction}{}% 1
-\BOOKMARK [1][-]{section.1.1}{Financial\040times-series\040stimulation}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.1}{Financial\040times-series\040simulation}{chapter.1}% 2
 \BOOKMARK [2][-]{subsection.1.1.1}{Classical\040and\040modern\040model}{section.1.1}% 3
-\BOOKMARK [2][-]{subsection.1.1.2}{Challenges\040of\040financial\040time\040series\040stimulation}{section.1.1}% 4
+\BOOKMARK [2][-]{subsection.1.1.2}{Challenges\040of\040financial\040time\040series\040simulation}{section.1.1}% 4
 \BOOKMARK [0][-]{chapter.2}{Signature\040feature}{}% 5
 \BOOKMARK [1][-]{section.2.1}{Signature}{chapter.2}% 6
 \BOOKMARK [2][-]{subsection.2.1.1}{Signature\040map}{section.2.1}% 7
@@ -37,5 +37,5 @@
 \BOOKMARK [2][-]{subsection.5.3.1}{Lead-lag\040based\040VAEs}{section.5.3}% 37
 \BOOKMARK [2][-]{subsection.5.3.2}{Time-augmentation\040based\040VAEs}{section.5.3}% 38
 \BOOKMARK [2][-]{subsection.5.3.3}{Student-t\040prior}{section.5.3}% 39
-\BOOKMARK [1][-]{section.5.4}{Path\040stimulation\040with\040signature}{chapter.5}% 40
+\BOOKMARK [1][-]{section.5.4}{Path\040simulation\040with\040signature}{chapter.5}% 40
 \BOOKMARK [1][-]{section.5.5}{Learning\040from\040path\040to\040path}{chapter.5}% 41

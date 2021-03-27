@@ -159,7 +159,7 @@ def inverse_plot(path, y_recover):
     
 import torch
 import neural_inverse
-def ll_reverse(N,order,paths,logsigs):
+def ll_reverse(N,order,paths,logsigs):    #lead-lag transformation (ll)
     Recovered= []
     for p,logsig0 in zip(paths, logsigs):
         net0, y_recover0, logsig_recover0 = neural_inverse.inverse_leadlag_path(torch.tensor(logsig0[None,:]), 27, order, 1)
@@ -172,8 +172,8 @@ def ll_reverse(N,order,paths,logsigs):
     return Recovered
 
 
-def ta_reverse(N,order,paths,logsigs):
-    Recovered= []
+def ta_reverse(N,order,paths,logsigs):   #time augmentation (ta)
+    Recovered= [] 
     for p,ls in zip(paths, logsigs):
         net, y_recover, logsig_recover = neural_inverse.inverse_multiple_path_time(ls[None,:], N, order, 1)
         Recovered.append((y_recover[0,:,1]).numpy() + 10)

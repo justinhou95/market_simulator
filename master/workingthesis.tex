@@ -91,7 +91,7 @@
 \end{titlepage}
 
 \begin{abstract}
-  Data-driven market generator based on deep learning model provides a more flexible framework to stimulate financial time series. We briefly discuss the generative modelling approaches as well as evaluation metrics for financial time series and point out their main challenges and difficulties, such as small data set problem and irregular sampling problem. In order to address these problems in financial time series stimulation, we introduce a market generator based on variational autoencoders (VAEs) with signature features, which is utilized from rough paths theory. Furthermore, signature features are universal, which helps to construct a maximum mean discrepancy (MMD) test based on signature kernel. This MMD test overcome difficulties in evaluation between distributions on time series and can be computed efficiently by recursive algorithm. We further improve the performance of market generator by considering student-t prior VAEs and introducing a novel neural network structure with signature map embedded. Moreover, we accelerate the market generator by inventing a signature inversion algorithm based on autoencoder structure. Also, we present a generative model based on ridge regression on signature features, which provide very accurate stimulation given the distribution of driven processes. Finally, we present the numerical implementations of market generator on rough models as well as all other algorithms to support our results numerically.
+  Data-driven market generator based on deep learning model provides a more flexible framework to simulate financial time series. We briefly discuss the generative modelling approaches as well as evaluation metrics for financial time series, and point out their main challenges and difficulties, such as small data set problem and irregular sampling problem. In order to address these problems in financial time series simulation, we introduce a market generator based on variational autoencoders (VAEs) with signature features, which is utilized from rough paths theory. Furthermore, signature features are universal, which helps to construct a maximum mean discrepancy (MMD) test based on signature kernel. This MMD test overcome difficulties in evaluation between distributions on time series and can be computed efficiently by recursive algorithm. We further improve the performance of market generator by considering student-t prior VAEs and introducing a novel neural network structure with signature map embedded. Moreover, we accelerate the market generator by inventing a signature inversion algorithm based on autoencoder structure. Also, we present a generative model based on ridge regression on signature features, which provides very accurate simulation given paths of driven processes. Finally, we present the numerical implementations of market generator on rough models as well as all other algorithms to support our results numerically.
 \end{abstract}
 
 \tableofcontents
@@ -99,12 +99,12 @@
 I would like to thank my supervisor Professor Josef Teichmann for endless help and instructions. Furthermore, I thank him very much for this interesting topic and directing me to the right direction, but also his encouragement motivating me to explore my own research interests. It is a great honor and pleasure to work with him on this fantastic topic. Also, I want to express my sincere thanks to my parents for their great love and endless support. Finally, I want to thank all my friends. Their accompany and help is one of my greatest memory during my master study.    
 
 \chapter{Introduction}\label{introduction}
-There is growing interests in applications of deep leaning to quantitative finance in \cite{bayerdeep, buehler2019deep, cuchiero2020generative, cont2004recovering, henry2019martingale, horvath2019deep, ruf2020neural, zhang2019stock}, where the power of deep neural network in pricing, hedging, modeling, and portfolio optimization have been proven. In all fantastic applications above, deep solvers are trained on market data to learn an optimal control when faced with market distributions. However, in practice, market data are usually scare for training. One approach is to use classical model to generate data but classical model are recently challenged by real market data because classical model are usually too simple and static to reflect the market. Another approach is the data-driven market generator, which learns from limited market data to generate sufficient samples which has similar distribution to the real market data. In this thesis, we develop a flexible generative model based on variational autoencoder (VAEs) \cite{kingma2019introduction} and signatures of paths \cite{friz2020course}, which is first introduced in \cite{buehler2020data}. This model is capable to generate realistic synthetic data with scare data, and also this model can generate market data conditioned on history data. we improve the performance of this model in both speed as well as performance, and we fix some numerical weakness in practical implementations. Furthermore, we introduce a novel structure of neural networks in this thesis.  
+There are growing interests in applications of deep learning to quantitative finance in \cite{bayerdeep, buehler2019deep, cuchiero2020generative, cont2004recovering, henry2019martingale, horvath2019deep, ruf2020neural, zhang2019stock}, where the power of deep neural network in pricing, hedging, modeling, and portfolio optimization have been proven. In all fantastic applications above, deep solvers are trained on market data to learn an optimal control when faced with market distributions. However, in practice, market data are usually scare for training. One approach is to use classical model to generate data but classical model are recently challenged by real market data because classical model are usually too simple and static to reflect the market. Another approach is the data-driven market generator, which learns from limited market data to generate sufficient samples which have similar distribution to the real market data. In this thesis, we develop a flexible generative model based on variational autoencoder (VAEs) \cite{kingma2019introduction} and signatures of paths \cite{friz2020course}. The combination of the above two technologies is first introduced in \cite{buehler2020data}. This model is capable to generate realistic synthetic data with scare observed data, and also this model can generate market data conditioned on history data. We improve the performance of this model in both speed and performance, and we fix some numerical weaknesses in practical implementations. Furthermore, we introduce a novel structure of neural networks in this thesis.  
 
 
-The thesis is organized as follows: In this chapter, we state the times-series stimulation problem with an outline of motivations and potential applications such as data anonymisation \cite{kondratyev2020data}. Furthermore, we discuss the challenges of market generating in financial scenario such as roughness \cite{gatheral2018volatility}. Then we contrast the main differences between classical methods and data-driven generators, also pointing out new challenges for generative models, such as the choice of evaluation metrics. In chapter \ref{signaturefeature}, we give a brief introduction to the signature feature of a path, focusing on the universality of the normalized signature map \cite{chevyrev2018signature} as well as properties of multiple variations of signature features. In chapter \ref{VariationalAutoencoders}, we give a brief introduction to the variational autoencoders (VAEs) \cite{kingma2013auto} and some variations of VAEs. In chapter \ref{marketgenerator}, we present our methodology to construct the market generator with details. In chapter \ref{NumericalImplementation}, we provide numerical implementations of evaluation based on signatures, inverting algorithm from log-signatures to paths, performance of our market generator on rough models, and paths stimulation with signatures. The algorithm developed in this paper and all details of numerical implementations are available in the Github repository provided with this paper Github repository: \url{https://github.com/justinhou95/market_simulator}.
+The thesis is organized as follows: In this chapter, we state the times-series simulation problem with an outline of motivations and potential applications such as data anonymisation \cite{kondratyev2020data}. Furthermore, we discuss the challenges of market generating in financial scenario such as roughness \cite{gatheral2018volatility}. Then we contrast the main differences between classical methods and data-driven generators, also pointing out new challenges for generative models, such as the choice of evaluation metrics. In chapter \ref{signaturefeature}, we give a brief introduction to the signature feature of a path, focusing on the universality of the normalized signature map \cite{chevyrev2018signature} as well as properties of multiple variations of signature features. In chapter \ref{VariationalAutoencoders}, we give a brief introduction to the variational autoencoders (VAEs) \cite{kingma2013auto} and some variations of VAEs. In chapter \ref{marketgenerator}, we present our methodology to construct the market generator with details. In chapter \ref{NumericalImplementation}, we provide numerical implementations of evaluation based on signatures, inverting algorithm from log-signatures to paths, performance of our market generator on rough models, and paths simulation algorithm with signatures. The algorithm developed in this paper and all details of numerical implementations are available in the Github repository provided with this paper Github repository: \url{https://github.com/justinhou95/market_simulator}.
 
-\section{Financial times-series stimulation}
+\section{Financial times-series simulation}
 The recent developments of deep learning in financial applications is one of the main motivation to construct a good market generator because the quality of input data determines the performance of deep solvers. There are many other situations where market simulator are need.
 \begin{itemize}
   \item  \textbf{Data anonymisation:} financial and medical data are usually confidential. If only the distribution of data matters, data generator can generate the distribution indifferent from the true data without leaking the true data. 
@@ -112,30 +112,30 @@ The recent developments of deep learning in financial applications is one of the
   \item \textbf{Back testing:} back testing is important for trading strategy and the market generator avoid overfitting to historical data.
   \item \textbf{Risk management:} market simulator can be used to generate synthetic paths to estimate various risk metrics, such as Value at Risk (VaR).
 \end{itemize}
-Motived by these applications, many market generator have been developed, so we shortly recall the history.
+Motived by these applications, many market generators have been developed, so we shortly recall the history.
 \subsection{Classical and modern model}
 Numerical simulation of financial time series has rich literatures.
 \begin{itemize}
-  \item \textbf{Classical models:} Classical models includes stochastic market models and autoregressive models. The advantages of classical models is that they are explainable and reliable but they are less flexible for complicated data. A generalization of classical models is to add more parameters and consider their weighted average \cite{duembgen2014estimate}. 
-  \item \textbf{Modern models:} Generative models in machine learning learn a map from randomness to synthetic data which has the same distribution of true data. Therefore, modern model implicitly approximates the true distribution without explicitly computing the distribution. 
+  \item \textbf{Classical models:} classical models include stochastic market models and autoregressive models. The advantages of classical models is that they are explainable and reliable but they are less flexible for complicated data. A generalization of classical models is to add more parameters and consider the weighted combination of many models \cite{duembgen2014estimate}. 
+  \item \textbf{Modern models:} generative models in machine learning learn a map from randomness to synthetic data which has a similar distribution to the distribution of true data. Therefore, modern models implicitly approximate the true distribution without explicitly computing the distribution. 
 \end{itemize}
-Among all generative models, there are two classes of deep generative models which are very successful and widely used: Generative Adversarial Networks (GANs) and Variational Autoencoders (VAEs). GANs were first introduced in 2014 by Goodfellow et al. in \cite{mirza2014conditional} and soon gained it's reputation in generating high resolution images and images classification tasks. VAEs were first introduced in 2013 by Kingma et al. in \cite{kingma2013auto}, as a variational bayesian inference with autoencoder structure which was proposed in \cite{ballard1987modular}. GANs are undoubtedly the most popular model in generative models and have been proven successful in many areas . On the other hand, recent theoretical connections between autoencoders and variational bayesian inference draw more attentions to VAEs as well, see \cite{kingma2019introduction}. Usually, GANs are capable to generate high precision samples but they suffer from data-hunger and instability in training phase, see \cite{arjovsky2017towards}. On the other hand, VAEs are easy to train and don’t suffer from mode collapse, but mostly produce smoother (blurry in images scenario) samples, see \cite{karras2017progressive}. In our market generating task, recent works using GANs to generate markets data includes the following: \cite{bonnier2019deep, cuchiero2020generative, henry2019generative, buehler2019deep, wiese2020quant, xu2020cot}. For VAEs, to date the only literature using VAEs for data generation is \cite{buehler2020data}. In this thesis, we focus on VAEs models due to challenges that arise in the setting of small data set of financial time series.
-\subsection{Challenges of financial time series stimulation}
+Among all generative models, there are two classes of deep generative models which are very successful and widely used: Generative Adversarial Networks (GANs) and Variational Autoencoders (VAEs). GANs were first introduced in 2014 by Goodfellow et al. in \cite{mirza2014conditional} and soon gained it's reputation in generating high resolution images and images classification tasks. VAEs were first introduced in 2013 by Kingma et al. in \cite{kingma2013auto}, as a variational bayesian inference with autoencoder structure which was proposed in \cite{ballard1987modular}. GANs are undoubtedly the most popular model in generative models and have been proven successful in many areas . On the other hand, recent theoretical connections between autoencoders and variational bayesian inference draw more attentions to VAEs as well, see \cite{kingma2019introduction}. Usually, GANs are capable to generate high precision samples but they suffer from data-hunger and instability in training phase, see \cite{arjovsky2017towards}. On the other hand, VAEs are easy to train and don’t suffer from mode collapse, but mostly produce smoother (blurry) samples, see \cite{karras2017progressive}. In our market generating task, recent works using GANs to generate markets data includes the following: \cite{bonnier2019deep, cuchiero2020generative, henry2019generative, buehler2019deep, wiese2020quant, xu2020cot}. For VAEs, to date the only literature using VAEs for data generation is \cite{buehler2020data}. In this thesis, we focus on VAEs models due to challenges that arise in the setting of small data set of financial time series.
+\subsection{Challenges of financial time series simulation}
 In the scenario of financial time series, a number of features of financial data, commonly referred to as stylized facts \cite{cont2001empirical}, need to be considered carefully when designing market generator. 
 \begin{itemize}
   \item \textbf{Small data set:} financial data like S\&P500 and DAX are relatively small data set.
   \item \textbf{Non-stationary: } financial data are in general non-stationary, therefore it need special preprocessing to satisfies i.i.d. assumptions for training data. 
-  \item \textbf{Heavy tails and aggregational Gaussianity:} financial data are believed non-gaussian and heavy-tail general, see \cite{amaral2000distribution}. 
+  \item \textbf{Heavy tails and aggregational Gaussianity:} financial data are believed non-gaussian and heavy-tail in general, see \cite{amaral2000distribution}. 
 
-  \item \textbf{No arbitrage} sometimes financial models are required to satisfies no arbitrage condition.
+  \item \textbf{No arbitrage} sometimes financial models are required to satisfy no arbitrage condition.
 
   \item \textbf{Volatility clustering: } absence of autocorrelation of asset returns, but slow decay of autocorrelation in absolute returns, see \cite{cont2001empirical}. 
 
   \item \textbf{Discrete representation of continuous path:} finite horizon observation might fail in characterizing specific properties in financial data. For example, one can construct examples that are indistinguishable from one another on a finite set of marginals, but leads to arbitrarily different hedging strategies and option prices in continuous time, see \cite{brigo2019probability}.
 
-  \item \textbf{Leverage effect:} Asset returns has negative correlation with the volatility of asset returns, see \cite{bouchaud2001leverage}.
+  \item \textbf{Leverage effect:} asset returns have negative correlation with the volatility of asset returns, see \cite{bouchaud2001leverage}.
 
-  \item \textbf{Roughness:} Financial data are observed rough in values as well as volatility, see \cite{gatheral2018volatility}.
+  \item \textbf{Roughness:} financial data are observed rough in values as well as volatility, see \cite{gatheral2018volatility}.
 
   \item \textbf{Irregular sampling:} missing data and highly oscillatory data are common in financial scenario, see \cite{kidger2020neural}.
 \end{itemize}
@@ -145,10 +145,10 @@ Mean Discrepancy (MMD) test \cite{gretton2012kernel} based on signature kernel i
 
 
 \chapter{Signature feature}\label{signaturefeature}
-In this chapter, we give an introduction to the signature feature of a path and some variation of signature feature such as log-signature, low-rank-signature. Moreover, we discuss the expectation of signatures of a stochastic process and emphasize their characteristic ability of the law of stochastic process. For simplicity and readability, we restrict our introduction on the space of continuous bounded variation paths from a compact time interval $J$ to a Euclidean space $E = \R^{d}$ denoted by $\mathcal{C}^{1}_{0}(J,E)$. We refer the discussion of semi-martingales and rough paths taking values in Banach space $E$ to \cite{friz2020course, lyons2007differential} and kindly invite interested readers to the comprehensive and rigorous introduction of signature feature in \cite{friz2020course, lyons2007differential}.  
+In this chapter, we give an introduction to the signature feature of a path and some variation of signature feature such as log-signature and low-rank-signature. Moreover, we discuss the expectation of signatures of a stochastic process and emphasize their characteristic ability of the law of stochastic process. For simplicity and readability, we restrict our introduction on the space of continuous bounded variation paths from a compact time interval $J$ to a Euclidean space $E = \R^{d}$ denoted by $\mathcal{C}^{1}_{0}(J,E)$. We refer the discussion of rough paths taking values in Banach space $E$ to \cite{friz2020course, lyons2007differential} and kindly invite interested readers to the comprehensive and rigorous introduction of signature feature in \cite{friz2020course, lyons2007differential}.  
 
 \section{Signature}
-We start the introduction from the tensor algebra in which our signature feature takes value. We consider the non-commuting formal power series of tensors with formal indeterminates as basis of $E$. 
+We start the introduction from the tensor algebra in which our signature feature takes values. We consider the non-commuting formal power series of tensors with formal indeterminates as basis of $E$. 
 \begin{definition}[Formal power series]
   We denote $T((E))$ the space of formal power series of tensors in $E$ that 
   \begin{equation}
@@ -212,7 +212,7 @@ and $T^{(n)}(E)$ can be considered as a subspace of $T((E))$.
 \end{example}
 
 \subsection{Signature map}
-We expect a good feature map to capture important information while ignoring irrelevant ones. First observation is the the signature feature is invariant of starting point because $d(X_{t} - X_{0}) = dX_{t}$. Moreover, it is invariant of reparametrization.
+We expect a good feature map to capture important information while ignoring irrelevant ones. First observation is that the signature feature is invariant of starting point because $d(X_{t} - X_{0}) = dX_{t}$. Moreover, it is invariant of reparametrization.
 \begin{proposition}[Invariant under reparametrization]\label{invariant}
   Let $X \in \mathcal{C}^{1}_{0}([S_{1},T_{1}],E)$ and  $\tau\colon [S_{1},T_{1}] \to [S_{2},T_{2}]$ a non-decreasing surjective reparametrization. Then 
   \begin{equation}
@@ -222,19 +222,19 @@ We expect a good feature map to capture important information while ignoring irr
 \begin{proof}
   \begin{equation}
     \begin{split}
-      \mathbf{Sig}_{[S_{2},T_{2}]}(X_{\tau(\cdot)})_{k} &= \int_{\tau(t_{1})<\cdots< \tau(t_{k}) \in [S_{2},T_{2}]}dX_{\tau(t_{1})}\otimes\cdots\otimes dX_{\tau(t_{k})}\\
-      &= \int_{t_{1}<\cdots< t_{k} \in [S_{1},T_{1}]}dX_{t_{1}}\otimes\cdots\otimes dX_{t_{k})} = \mathbf{Sig}_{[S_{1},T_{1}]}(X) 
+      \mathbf{Sig}_{[S_{2},T_{2}]}(X_{\tau(\cdot)})_{k} &= \int_{S_{2} = \tau(t_{1})<\cdots< \tau(t_{k}) = T_{2}}dX_{\tau(t_{1})}\otimes\cdots\otimes dX_{\tau(t_{k})}\\
+      &= \int_{S_{1} = t_{1}<\cdots< t_{k} = T_{1}}dX_{t_{1}}\otimes\cdots\otimes dX_{t_{k})} = \mathbf{Sig}_{[S_{1},T_{1}]}(X) 
     \end{split}
   \end{equation}
 \end{proof}
-From the invariant property of reparametrization, we notice that signature map is not injective. However, signature feature is injective up to tree-like equivalence $\sim_{t}$ which we detailed in \cite{boedihardjo2016signature}, and obviously time-reparametrization is included in tree-like equivalence. We define $\mathcal{P}_{0}^{1} = \mathcal{C}^{1}_{0}([0,T],E) / \sim_{t}$ the quotient space up to tree-like equivalence endowed with quotient metric.  
+From the invariant property of reparametrization, we notice that signature map is not injective. However, signature feature is injective up to tree-like equivalence $\sim_{t}$ which we detailed in \cite{boedihardjo2016signature}, and obviously time-reparametrization is included in tree-like equivalence. We define $\mathcal{P}_{0}^{1} = \mathcal{C}^{1}_{0}([0,T],E) / \sim_{t}$ the quotient space up to tree-like equivalence endowed with the quotient metric.  
 \begin{theorem}[Weak uniqueness \cite{boedihardjo2016signature}] \label{uniqueness}
   $\mathbf{Sig}_{[0,T]}$ is injective on $\mathcal{P}_{0}^{1}$.
 \end{theorem}
 \begin{proof}
   See \cite{boedihardjo2016signature}.
 \end{proof}
-If we add time as an additional strictly increasing coordinate into path ie. $\overline{X_{t}} = (t,X_{t}) \in \overline{E} \coloneq \R\oplus E$, then $\mathbf{Sig}_{[0,T]}$ is injective on the time-augmented space. 
+If we add time as an additional strictly increasing coordinate into path i.e. $\overline{X_{t}} = (t,X_{t}) \in \overline{E} \coloneq \R\oplus E$, then $\mathbf{Sig}_{[0,T]}$ is injective on the time-augmented space. 
 \begin{corollary}[Uniqueness \cite{boedihardjo2016signature}] 
   $\mathbf{Sig}_{[0,T]}$ is injective on $\mathcal{C}^{1}_{0}([0,T],\overline{E})$.
 \end{corollary}
@@ -242,11 +242,11 @@ If we add time as an additional strictly increasing coordinate into path ie. $\o
   Since the first coordinate is strictly increasing, the only tree-like equivalent path is itself i.e. $\mathcal{P}^{1}_{0} = \mathcal{C}^{1}_{0}([0,T],\overline{E})$, which concludes the proof. 
 \end{proof}
 \begin{proposition}\label{surjective}
-  $\mathbf{Sig}_{[0,1]}$ is neither surjective nor the range of which a linear subspace of $\mathbf{T}(E)$.
+  Neither is $\mathbf{Sig}_{[0,1]}$ surjective nor the range of which is a linear subspace of $\mathbf{T}(E)$.
 \end{proposition}
 \begin{proof}
   Let $X \in \mathcal{C}^{1}_{0}([0,T],E)$ and w.l.o.g assume $X_{0} = 0$. 
-  By integration by part
+  By integration by parts
   \begin{equation}
     \begin{split}
       \mathbf{Sig}_{[0,1]}(X)_{1,2} + \mathbf{Sig}_{[0,1]}(X)_{2,1} &=  \int_{t_{1}<t_{2} \in [0,1]}dX_{t_{1}}^{1}dX_{t_{2}}^{2} + \int_{t_{1}<t_{2} \in [0,1]}dX_{t_{1}}^{1}dX_{t_{2}}^{2}\\
@@ -286,7 +286,7 @@ Instead of viewing signature as a static object, we can consider signature strea
 
 
 \begin{definition}
-  Let $X \in \mathcal{C}^{1}_{0}([0,s],E)$ and  $X \in \mathcal{C}^{1}_{0}([s,t],E)$. The concatenated path $X\star Y \in\mathcal{C}^{1}_{0}([0,t],E) $ is defined by 
+  Let $X \in \mathcal{C}^{1}_{0}([0,s],E)$ and  $Y \in \mathcal{C}^{1}_{0}([s,t],E)$. The concatenated path $X\star Y \in\mathcal{C}^{1}_{0}([0,t],E) $ is defined by 
   \begin{equation}
     (X\star Y)_{u} = \left\{\begin{aligned}
       &X_{u} &u\in [0,s]\\
@@ -344,14 +344,14 @@ Instead of viewing signature as a static object, we can consider signature strea
   \begin{equation} 
     Y_{t} = \Big(\sum_{k=0}^{\infty}B^{\otimes k}\Big) \Big(\mathbf{Sig}_{[0,t]}(X)\Big) Y_{0}.
   \end{equation}
-  which implies that the solution of controlled SDE could be written as a linear function on signature stream of control path. This implies that signature stream is a promising feature for controlled ODE.
+  which implies that the solution of controlled SDE could be written as a linear function on signature stream of driving path. This implies that signature stream is a promising feature for controlled ODE.
 \end{example}
 \begin{remark}
   Similar result holds for smooth vector field with some additional boundness assumption and the proof is in alignment with the argument above, see \cite{liao2019learning}. 
 \end{remark}
 Despite nice properties as feature map, signature feature suffers from dimension explosion w.r.t truncation order. Consider a path $X \in \mathcal{C}^{1}_{0}([0,T],\R^{d})$ and the truncated signature of $X$ up to order $n$ lies in $\mathbf{T}^{(n)}(\R^{d}) \subseteq \bigoplus_{k\leq n} (\R^{d})^{\otimes k} $ which has dimension $1 + d + \cdots + d^{n} = \frac{d^{n+1} - d}{d-1}$ growing exponentially w.r.t the truncation order $n$. Therefore, we would like to explore some low-rank approximations of signature feature. 
 \section{Log-signature}
-From Proposition \ref{surjective}, we know that $\mathbf{Sig}_{[0,1]}$ is neither surjective nor the range of which a linear subspace of $\mathbf{T}(E)$. In Example \ref{linear}, for $X_{t} = t\mathbf{x} \in \R^{d}$, then 
+From Proposition \ref{surjective}, we know that $\mathbf{Sig}_{[0,1]}$ is neither surjective nor the range of it is a linear subspace of $\mathbf{T}(E)$. In Example \ref{linear}, for $X_{t} = t\mathbf{x} \in \R^{d}$, then 
   \begin{equation}
     \mathbf{Sig}_{[0,1]}(X) = \sum_{k\geq 0}\frac{\mathbf{x}^{\otimes k}}{k!}
   \end{equation}
@@ -1125,8 +1125,8 @@ Then we quantify the difference between VAE with normal prior and VAE with stude
 \end{figure}
 We observe that student-t prior in general outperforms the normal prior but the difference is negligible. However, this proves that prior of VAE matters and a following question is that what prior is the best? In another word, we are interested in the property of the signature distribution, for example, whether the distribution on the signature space is heavy-tail or not, which should be studied in future work. 
 
-\section{Path stimulation with signature}
-In this section, we consider numerical stimulations of the following stochastic differential equation
+\section{Path simulation with signature}
+In this section, we consider numerical simulations of the following stochastic differential equation
 \begin{equation*}
   dX_t = \sum_{k=1}^{m} B^{k}X_{t}dW^{k}_{t},\quad X_{t}\in \mathbb{R}^{n}, W_{t}\in\mathbb{R}^{m}, B^{k} \in \mathbb{R}^{n\times n}
 \end{equation*}
@@ -1179,7 +1179,7 @@ Unfortunately, all python packages we know available so far (including esig \url
     \includegraphics[width=\textwidth]{figs/sde1.png}
     \caption{Solution of SDE stimulated with Euler method on fine grid}
 \end{figure}
-Now we compare stimulations between growing discrete signature and truncated discrete signature.
+Now we compare simulations between growing discrete signature and truncated discrete signature.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/sde2.png}
@@ -1192,7 +1192,7 @@ Now we compare stimulations between growing discrete signature and truncated dis
     \includegraphics[width=\textwidth]{figs/sde5.png}
     \caption{Growing discrete signature}
 \end{figure}
-Growing discrete signature outperforms the truncated signature. As the order of truncated discrete signature increases, it tends to it's limit of approximation, which is the error caused by mis-computing the quadratic variation term using Stratonovich integral. As the order of growing discrete signature increases, the performance tends to the Euler method. This is useful because if we know the signature of our control at $T$, then multiplying the signature with vector field gives a stimulation as good as Euler stimulation running from $0$ to $T$. The key here is the linear relation between signature and the value of SDE. Inversely, this linear relation can be easily learnt by a simple linear regression.
+Growing discrete signature outperforms the truncated signature. As the order of truncated discrete signature increases, it tends to it's limit of approximation, which is the error caused by mis-computing the quadratic variation term using Stratonovich integral. As the order of growing discrete signature increases, the performance tends to the Euler method. This is useful because if we know the signature of our control at $T$, then multiplying the signature with vector field gives a simulation as good as Euler simulation running from $0$ to $T$. The key here is the linear relation between signature and the value of SDE. Inversely, this linear relation can be easily learnt by a simple linear regression.
 
 \section{Learning from path to path}
 Consider controlled differential equations 

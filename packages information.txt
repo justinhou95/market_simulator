@@ -1,0 +1,12 @@
+python 3.6
+
+esig==0.9.4
+tensorflow ==2.3
+tensorflow_probability ==0.11
+scikit-learn==0.24.1
+matplotlib==3.3.4
+gpflow==2.1.4
+tqdm==4.59.0
+pandas-datareader==0.9.0
+torch==1.7.1
+signatory==1.2.4.1.7.1
