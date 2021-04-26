@@ -8,45 +8,45 @@ Warning--empty year in bayerdeep
 Warning--empty journal in cont2001empirical
 Warning--empty journal in cont2004recovering
 Warning--empty journal in higgins2016beta
-You've used 59 entries,
+You've used 60 entries,
             2253 wiz_defined-function locations,
-            828 strings with 13586 characters,
-and the built_in function-call counts, 18979 in all, are:
-= -- 1810
-> -- 998
+            832 strings with 13802 characters,
+and the built_in function-call counts, 19309 in all, are:
+= -- 1838
+> -- 1025
 < -- 0
-+ -- 423
-- -- 352
-* -- 1475
-:= -- 3161
-add.period$ -- 174
-call.type$ -- 59
-change.case$ -- 351
++ -- 434
+- -- 362
+* -- 1503
+:= -- 3221
+add.period$ -- 177
+call.type$ -- 60
+change.case$ -- 359
 chr.to.int$ -- 0
-cite$ -- 64
-duplicate$ -- 646
-empty$ -- 1429
-format.name$ -- 352
-if$ -- 3870
+cite$ -- 65
+duplicate$ -- 655
+empty$ -- 1448
+format.name$ -- 362
+if$ -- 3933
 int.to.chr$ -- 0
-int.to.str$ -- 59
-missing$ -- 61
-newline$ -- 294
-num.names$ -- 118
-pop$ -- 319
+int.to.str$ -- 60
+missing$ -- 62
+newline$ -- 299
+num.names$ -- 120
+pop$ -- 326
 preamble$ -- 1
-purify$ -- 294
+purify$ -- 301
 quote$ -- 0
-skip$ -- 436
+skip$ -- 442
 stack$ -- 0
-substring$ -- 1025
-swap$ -- 178
+substring$ -- 1030
+swap$ -- 180
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 232
+type$ -- 236
 warning$ -- 5
-while$ -- 172
-width$ -- 61
-write$ -- 560
+while$ -- 174
+width$ -- 62
+write$ -- 569
 (There were 5 warnings)

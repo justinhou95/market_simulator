@@ -24,10 +24,10 @@ def randomAbeta(d,M):
     A = []
     beta = []
     for i in range(d):
-        B = 0.0*nilpotent(M) + np.random.normal(0.0,0.5,size=(M,M)) 
+        B = 0.0*nilpotent(M) + np.random.normal(0.0,0.05,size=(M,M)) 
         B = np.random.permutation(B)
         A = A + [B]
-        beta = beta + [0.0*canonical(i,M)+np.random.normal(0.0,0.5,size=(M,1))]
+        beta = beta + [0.0*canonical(i,M)+np.random.normal(0.0,0.05,size=(M,1))]
     return [A,beta]
 
 def sigmoid(x):
@@ -56,7 +56,7 @@ def reservoir(BMpath, r, initialvalue = None):
     for i in range(timesteps-1):
         increment = BMpath[i+1]-BMpath[i]
         state = reservoirpath[-1]
-        reservoirpath.append( state + r.reservoirfield(state,increment) )
+        reservoirpath.append( state + r.reservoirfield(state,increment) + np.exp(-0.1*state)*(1/timesteps) )
     return np.squeeze(np.array(reservoirpath))    
     
 def cut_path(path,sublength):

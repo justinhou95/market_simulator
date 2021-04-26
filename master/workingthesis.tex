@@ -13,14 +13,6 @@
 \titleformat{name=\chapter,numberless}[display]
   {\LARGE\bfseries}{}{0pt}{\LARGE}
 
-
-
-
-
-
-
-  
-
 % \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[chapter]
 
@@ -91,7 +83,7 @@
 \end{titlepage}
 
 \begin{abstract}
-  Data-driven market generator based on deep learning model provides a more flexible framework to simulate financial time series. We briefly discuss the generative modelling approaches as well as evaluation metrics for financial time series, and point out their main challenges and difficulties, such as small data set problem and irregular sampling problem. In order to address these problems in financial time series simulation, we introduce a market generator based on variational autoencoders (VAEs) with signature features, which is utilized from rough paths theory. Furthermore, signature features are universal, which helps to construct a maximum mean discrepancy (MMD) test based on signature kernel. This MMD test overcome difficulties in evaluation between distributions on time series and can be computed efficiently by recursive algorithm. We further improve the performance of market generator by considering student-t prior VAEs and introducing a novel neural network structure with signature map embedded. Moreover, we accelerate the market generator by inventing a signature inversion algorithm based on autoencoder structure. Also, we present a generative model based on ridge regression on signature features, which provides very accurate simulation given paths of driven processes. Finally, we present the numerical implementations of market generator on rough models as well as all other algorithms to support our results numerically.
+  Data-driven market generator based on deep learning model provides a more flexible framework to simulate financial time series. We briefly discuss generative modelling approaches as well as evaluation metrics for financial time series, and point out the main challenges and difficulties under financial scenario, such as small data set problem and irregular sampling problem. In order to address these problems, we introduce a market generator based on variational autoencoders (VAEs) with signature feature, which comes from rough paths theory. Signature feature is universal, which additionally helps to construct an efficient maximum mean discrepancy (MMD) test based on signature kernel. This MMD test overcome difficulties in evaluation between distributions on time series and can be computed efficiently by recursive algorithm. We further improve the performance of market generator by considering student-t prior VAEs and introducing a novel neural network structure with signature map embedded. Moreover, we accelerate the market generator by inventing a signature inversion algorithm based on autoencoder structure. Also, we present a generative model based on ridge regression on signature features, which provides very accurate simulation given paths of driven processes. Finally, we present the numerical implementations of market generator on rough models as well as all other algorithms to support our results numerically.
 \end{abstract}
 
 \tableofcontents
@@ -99,16 +91,16 @@
 I would like to thank my supervisor Professor Josef Teichmann for endless help and instructions. Furthermore, I thank him very much for this interesting topic and directing me to the right direction, but also his encouragement motivating me to explore my own research interests. It is a great honor and pleasure to work with him on this fantastic topic. Also, I want to express my sincere thanks to my parents for their great love and endless support. Finally, I want to thank all my friends. Their accompany and help is one of my greatest memory during my master study.    
 
 \chapter{Introduction}\label{introduction}
-There are growing interests in applications of deep learning to quantitative finance in \cite{bayerdeep, buehler2019deep, cuchiero2020generative, cont2004recovering, henry2019martingale, horvath2019deep, ruf2020neural, zhang2019stock}, where the power of deep neural network in pricing, hedging, modeling, and portfolio optimization have been proven. In all fantastic applications above, deep solvers are trained on market data to learn an optimal control when faced with market distributions. However, in practice, market data are usually scare for training. One approach is to use classical model to generate data but classical model are recently challenged by real market data because classical model are usually too simple and static to reflect the market. Another approach is the data-driven market generator, which learns from limited market data to generate sufficient samples which have similar distribution to the real market data. In this thesis, we develop a flexible generative model based on variational autoencoder (VAEs) \cite{kingma2019introduction} and signatures of paths \cite{friz2020course}. The combination of the above two technologies is first introduced in \cite{buehler2020data}. This model is capable to generate realistic synthetic data with scare observed data, and also this model can generate market data conditioned on history data. We improve the performance of this model in both speed and performance, and we fix some numerical weaknesses in practical implementations. Furthermore, we introduce a novel structure of neural networks in this thesis.  
+There are growing interests in applications of deep learning to quantitative finance in \cite{bayerdeep, buehler2019deep, cuchiero2020generative, cont2004recovering, henry2019martingale, horvath2019deep, ruf2020neural, zhang2019stock}, where the power of deep neural network in pricing, hedging, modeling, and portfolio optimization have been proven. In all fantastic applications above, deep solvers are trained on market data to learn an optimal control. However, in practice, market data are usually scare for training. One approach is to use classical stochastic model to generate data. However classical stochastic model are recently challenged by real market data because classical model are usually too simple or too static to reflect the market. Another approach is the data-driven market generator, which learns a market generator from limited market data. This market generator can generate a collection of samples which is indistinguishable from the distribution to the real market data. In this thesis, we develop a flexible generative model based on variational autoencoder (VAEs) \cite{kingma2019introduction} with signatures of paths \cite{friz2020course}. The combination of the above two technologies is first introduced in \cite{buehler2020data}. This novel model is capable to generate realistic synthetic data with scare observed data. Also, this model can generate market data conditioned on history information. We improve the performance of this model in both speed and performance, and we fix some numerical weaknesses in practical implementations. Furthermore, we introduce a novel structure of neural networks in this thesis.  
 
 
-The thesis is organized as follows: In this chapter, we state the times-series simulation problem with an outline of motivations and potential applications such as data anonymisation \cite{kondratyev2020data}. Furthermore, we discuss the challenges of market generating in financial scenario such as roughness \cite{gatheral2018volatility}. Then we contrast the main differences between classical methods and data-driven generators, also pointing out new challenges for generative models, such as the choice of evaluation metrics. In chapter \ref{signaturefeature}, we give a brief introduction to the signature feature of a path, focusing on the universality of the normalized signature map \cite{chevyrev2018signature} as well as properties of multiple variations of signature features. In chapter \ref{VariationalAutoencoders}, we give a brief introduction to the variational autoencoders (VAEs) \cite{kingma2013auto} and some variations of VAEs. In chapter \ref{marketgenerator}, we present our methodology to construct the market generator with details. In chapter \ref{NumericalImplementation}, we provide numerical implementations of evaluation based on signatures, inverting algorithm from log-signatures to paths, performance of our market generator on rough models, and paths simulation algorithm with signatures. The algorithm developed in this paper and all details of numerical implementations are available in the Github repository provided with this paper Github repository: \url{https://github.com/justinhou95/market_simulator}.
+The thesis is organized as follows: In this chapter, we state the times-series simulation problem with an outline of motivations and potential applications such as data anonymisation \cite{kondratyev2020data}. Furthermore, we discuss the challenges of market generating in financial scenario such as roughness \cite{gatheral2018volatility}. Then we compare the main differences between classical methods and data-driven generators, also pointing out new challenges for generative models, such as the choice of evaluation metrics. In chapter \ref{signaturefeature}, we give a brief introduction to the signature feature, focusing on the universality of the normalized signature map \cite{chevyrev2018signature} as well as properties of multiple variations of signature features. In chapter \ref{VariationalAutoencoders}, we give a brief introduction to the variational autoencoders (VAEs) \cite{kingma2013auto} and variations of VAEs. In chapter \ref{marketgenerator}, we present our methodology to construct the market generator with details. In chapter \ref{NumericalImplementation}, we provide numerical results of evaluation based on signature kernels, inverting algorithm from log-signatures to paths, performance of our market generator on rough models, and paths simulation algorithm with signatures. The algorithm developed in this paper and all details of numerical implementations are available in the Github repository provided with this paper Github repository: \url{https://github.com/justinhou95/market_simulator}.
 
 \section{Financial times-series simulation}
 The recent developments of deep learning in financial applications is one of the main motivation to construct a good market generator because the quality of input data determines the performance of deep solvers. There are many other situations where market simulator are need.
 \begin{itemize}
   \item  \textbf{Data anonymisation:} financial and medical data are usually confidential. If only the distribution of data matters, data generator can generate the distribution indifferent from the true data without leaking the true data. 
-  \item \textbf{Small original training data sets:} financial data are usually expensive and scare. Data generator augment the data sets for more complex application avoid over fitting to the observed data.
+  \item \textbf{Small original training data sets:} financial data are usually expensive and scare. Data generator augment the data set for more complex application avoiding over fitting to the observed data.
   \item \textbf{Back testing:} back testing is important for trading strategy and the market generator avoid overfitting to historical data.
   \item \textbf{Risk management:} market simulator can be used to generate synthetic paths to estimate various risk metrics, such as Value at Risk (VaR).
 \end{itemize}
@@ -117,9 +109,9 @@ Motived by these applications, many market generators have been developed, so we
 Numerical simulation of financial time series has rich literatures.
 \begin{itemize}
   \item \textbf{Classical models:} classical models include stochastic market models and autoregressive models. The advantages of classical models is that they are explainable and reliable but they are less flexible for complicated data. A generalization of classical models is to add more parameters and consider the weighted combination of many models \cite{duembgen2014estimate}. 
-  \item \textbf{Modern models:} generative models in machine learning learn a map from randomness to synthetic data which has a similar distribution to the distribution of true data. Therefore, modern models implicitly approximate the true distribution without explicitly computing the distribution. 
+  \item \textbf{Modern models:} generative models in machine learning learn a map from randomness to synthetic data which has a similar distribution to the distribution of true data. Therefore, modern models implicitly approximate the true distribution without explicitly specifying the distribution. 
 \end{itemize}
-Among all generative models, there are two classes of deep generative models which are very successful and widely used: Generative Adversarial Networks (GANs) and Variational Autoencoders (VAEs). GANs were first introduced in 2014 by Goodfellow et al. in \cite{mirza2014conditional} and soon gained it's reputation in generating high resolution images and images classification tasks. VAEs were first introduced in 2013 by Kingma et al. in \cite{kingma2013auto}, as a variational bayesian inference with autoencoder structure which was proposed in \cite{ballard1987modular}. GANs are undoubtedly the most popular model in generative models and have been proven successful in many areas . On the other hand, recent theoretical connections between autoencoders and variational bayesian inference draw more attentions to VAEs as well, see \cite{kingma2019introduction}. Usually, GANs are capable to generate high precision samples but they suffer from data-hunger and instability in training phase, see \cite{arjovsky2017towards}. On the other hand, VAEs are easy to train and don’t suffer from mode collapse, but mostly produce smoother (blurry) samples, see \cite{karras2017progressive}. In our market generating task, recent works using GANs to generate markets data includes the following: \cite{bonnier2019deep, cuchiero2020generative, henry2019generative, buehler2019deep, wiese2020quant, xu2020cot}. For VAEs, to date the only literature using VAEs for data generation is \cite{buehler2020data}. In this thesis, we focus on VAEs models due to challenges that arise in the setting of small data set of financial time series.
+Among all generative models, there are two classes of deep generative models very successful and widely used: Generative Adversarial Networks (GANs) and Variational Autoencoders (VAEs). GANs were first introduced in 2014 by Goodfellow et al. in \cite{mirza2014conditional} and soon gained it's reputation in generating high resolution images and images classification tasks. VAEs were first introduced in 2013 by Kingma et al. in \cite{kingma2013auto}, as a variational bayesian inference with autoencoder structure which was proposed in \cite{ballard1987modular}. GANs are undoubtedly the most popular model in generative models and have been proven successful in many areas . On the other hand, recent theoretical connections between autoencoders and variational bayesian inference draw more attentions to VAEs as well, see \cite{kingma2019introduction}. Usually, GANs are capable to generate high precision samples but they suffer from data-hunger and instability in training phase, see \cite{arjovsky2017towards}. On the other hand, VAEs are easy to train and do not suffer from mode collapse, but mostly produce smoother (blurry) samples, see \cite{karras2017progressive}. In our market generating task, recent works using GANs to generate markets data includes the following: \cite{bonnier2019deep, cuchiero2020generative, henry2019generative, buehler2019deep, wiese2020quant, xu2020cot}. For VAEs, to date the only literature using VAEs for data generation is \cite{buehler2020data}. In this thesis, we focus on VAEs models due to challenges that arise in the setting of small data set of financial time series.
 \subsection{Challenges of financial time series simulation}
 In the scenario of financial time series, a number of features of financial data, commonly referred to as stylized facts \cite{cont2001empirical}, need to be considered carefully when designing market generator. 
 \begin{itemize}
@@ -140,15 +132,15 @@ In the scenario of financial time series, a number of features of financial data
   \item \textbf{Irregular sampling:} missing data and highly oscillatory data are common in financial scenario, see \cite{kidger2020neural}.
 \end{itemize}
 On one hand, the market generator should be robust enough to overcome problems in financial data (small data set, non-stationary, irregular sampling,  non-robust representation). On the other hand, the market generator should be expressive enough to generate rough, heavy tails synthetic data. These challenges motivate us to introduce the signature feature map. Signature features have the following properties: (i) efficiently representing data which are important for hedging problems, see \eqref{linear_control} (ii) robustness in representing data, see \cite{brigo2019probability} (iii) robustness in irregular sampling, see \cite{liao2019learning} (iv) Invariant under translation and reparameterization, see Proposition \ref{invariant} (v)          uniqueness up to tree-like equivalence, see Theorem \ref{uniqueness} (vi) universality, see \ref{weakuniversality} (vii) efficiently computation by recursive algorithm, see \cite{kiraly2019kernels} and powerful python packages available. Moreover, signatures provides a generic way evaluating the closeness between different distributions of time series by considering the Maximum
-Mean Discrepancy (MMD) test \cite{gretton2012kernel} based on signature kernel introduced by Chevyrev and Oberhauser in \cite{chevyrev2018signature}. Traditional distributional metrics and divergences usually have the following weakness: (i) lack of universality because metric is designed for specific application (ii) need of explicit distribution (KL-divergence and Wasserstein metric) (iii) being hard to compute or even ard to define on paths space (iii) fail to characterize the hedging performance of paths (iv) need of stationary assumption. However, Maximum Mean Discrepancy (MMD) test based on signature kernel overcomes all the difficulties stated above because signature is defined on path space, and more importantly, the universality of the normalized signature map \cite{chevyrev2018signature}. Next, we provide an introduction with details on properties of signatures in the next chapter.    
+Mean Discrepancy (MMD) test \cite{gretton2012kernel} based on signature kernel introduced by Chevyrev and Oberhauser in \cite{chevyrev2018signature}. Traditional distributional metrics and divergences usually have the following weakness: (i) lack of universality because metric is designed for specific application (ii) need of explicit distribution (KL-divergence and Wasserstein metric) (iii) being hard to compute or even ard to define on paths space (iii) fail to characterize the hedging performance of paths (iv) need of stationary assumption. However, Maximum Mean Discrepancy (MMD) test based on signature kernel overcomes all the difficulties stated above because signature is defined on path space, and more importantly, the universality of the normalized signature map \cite{chevyrev2018signature}. We start with an introduction of signatures in the next chapter.    
 
 
 
 \chapter{Signature feature}\label{signaturefeature}
-In this chapter, we give an introduction to the signature feature of a path and some variation of signature feature such as log-signature and low-rank-signature. Moreover, we discuss the expectation of signatures of a stochastic process and emphasize their characteristic ability of the law of stochastic process. For simplicity and readability, we restrict our introduction on the space of continuous bounded variation paths from a compact time interval $J$ to a Euclidean space $E = \R^{d}$ denoted by $\mathcal{C}^{1}_{0}(J,E)$. We refer the discussion of rough paths taking values in Banach space $E$ to \cite{friz2020course, lyons2007differential} and kindly invite interested readers to the comprehensive and rigorous introduction of signature feature in \cite{friz2020course, lyons2007differential}.  
+In this chapter, we give an introduction to the signature feature of a path and some variation of signature feature such as log-signature and low-rank-signature. Moreover, we discuss the expectation of signatures of a stochastic process and emphasize their ability characterising the law of stochastic process. For simplicity and readability, we restrict our introduction on the space of continuous bounded variation paths from a compact time interval $J$ to a Euclidean space $E = \R^{d}$ denoted by $\mathcal{C}^{1}_{0}(J,E)$. We refer the discussion of rough paths taking values in Banach space $E$ to \cite{friz2020course, lyons2007differential} and kindly invite interested readers to the comprehensive and rigorous introduction of signature feature in \cite{friz2020course, lyons2007differential}.  
 
 \section{Signature}
-We start the introduction from the tensor algebra in which our signature feature takes values. We consider the non-commuting formal power series of tensors with formal indeterminates as basis of $E$. 
+We start the introduction with the tensor algebra in which our signature feature takes values. We consider the non-commuting formal power series.
 \begin{definition}[Formal power series]
   We denote $T((E))$ the space of formal power series of tensors in $E$ that 
   \begin{equation}
@@ -169,11 +161,11 @@ Let $T^{(n)}(E)$ denote the truncated tensor algebra space up to order $n$
   T^{(n)}(E) = \bigoplus_{k\leq n} E^{\otimes k}
 \end{equation}  
 \end{definition}
-Let $e_{1},\cdots,e_{d}$ be a finite basis of $E = \R^{d}$. Then $\mathbf{a}\in T((E))$ has the following linear form
+Let $e_{1},\cdots,e_{d}$ be a finite basis of $E = \R^{d}$. Then $\mathbf{a}\in T((E))$ has the following linear form:
 \begin{equation} 
   \mathbf{a} = \sum_{k\geq 0}\Big(\sum_{i_{1},\cdots,i_{k} = 1}^{d} a_{i_{1},\cdots,i_{k}}e_{i_{1}}\otimes\cdots\otimes e_{i_{k}} \Big),\quad a_{i_{1},\cdots,i_{k}} \in \R.
 \end{equation}
-and $T^{(n)}(E)$ can be considered as a subspace of $T((E))$.
+and $T^{(n)}(E)$ can be understood as a subspace of $T((E))$.
 % and $T((E))$ is endowed with inner product naturally inherited from $\R^{d}$. 
 % \begin{equation}
 %   \langle e_{i_{1}}\otimes\cdots\otimes e_{i_{k}}, e_{j_{1}}\otimes\cdots\otimes e_{j_{k}} \rangle_{T((E))} = \delta_{i_{1},j_{1}}\cdots \delta_{i_{k},j_{k}}
@@ -199,9 +191,9 @@ and $T^{(n)}(E)$ can be considered as a subspace of $T((E))$.
       &= \sum_{i_{1},\cdots,i_{k} = 1}^{d} \int_{t_{1}<\cdots< t_{k} \in J}dX_{t_{1}}^{i_{1}}\cdots dX_{t_{k}}^{i_{k}} \cdot e_{i_{1}}\otimes\cdots\otimes e_{i_{k}} \\
     \end{split}
   \end{equation}
-  Further more, we let $\mathbf{Sig}^{(n)}_{J}$ denote the truncated signature map up to order $n$
+  Furthermore, we let $\mathbf{Sig}^{(M)}_{J}$ denote the truncated signature map up to order $M$
   \begin{equation}
-    \mathbf{Sig}^{(n)}_{J}(X) = (1, \mathbf{s}_{1},\cdots, \mathbf{s}_{M}) \in \mathbf{T}^{(n)}(E).
+    \mathbf{Sig}^{(M)}_{J}(X) = (1, \mathbf{s}_{1},\cdots, \mathbf{s}_{M}) \in \mathbf{T}^{(M)}(E).
   \end{equation}
 \end{definition}
 \begin{example}\label{linear}
@@ -214,7 +206,7 @@ and $T^{(n)}(E)$ can be considered as a subspace of $T((E))$.
 \subsection{Signature map}
 We expect a good feature map to capture important information while ignoring irrelevant ones. First observation is that the signature feature is invariant of starting point because $d(X_{t} - X_{0}) = dX_{t}$. Moreover, it is invariant of reparametrization.
 \begin{proposition}[Invariant under reparametrization]\label{invariant}
-  Let $X \in \mathcal{C}^{1}_{0}([S_{1},T_{1}],E)$ and  $\tau\colon [S_{1},T_{1}] \to [S_{2},T_{2}]$ a non-decreasing surjective reparametrization. Then 
+  Let $X \in \mathcal{C}^{1}_{0}([S_{1},T_{1}],E)$ and  $\tau\colon [S_{2},T_{2}] \to [S_{1},T_{1}]$ a non-decreasing surjective reparametrization. Then 
   \begin{equation}
     \mathbf{Sig}_{[S_{2},T_{2}]}(X_{\tau(\cdot)}) = \mathbf{Sig}_{[S_{1},T_{1}]}(X) 
   \end{equation}
@@ -222,7 +214,7 @@ We expect a good feature map to capture important information while ignoring irr
 \begin{proof}
   \begin{equation}
     \begin{split}
-      \mathbf{Sig}_{[S_{2},T_{2}]}(X_{\tau(\cdot)})_{k} &= \int_{S_{2} = \tau(t_{1})<\cdots< \tau(t_{k}) = T_{2}}dX_{\tau(t_{1})}\otimes\cdots\otimes dX_{\tau(t_{k})}\\
+      \mathbf{Sig}_{[S_{2},T_{2}]}(X_{\tau(\cdot)})_{k} &= \int_{S_{1} = \tau(t_{1})<\cdots< \tau(t_{k}) = T_{1}}dX_{\tau(t_{1})}\otimes\cdots\otimes dX_{\tau(t_{k})}\\
       &= \int_{S_{1} = t_{1}<\cdots< t_{k} = T_{1}}dX_{t_{1}}\otimes\cdots\otimes dX_{t_{k})} = \mathbf{Sig}_{[S_{1},T_{1}]}(X) 
     \end{split}
   \end{equation}
@@ -242,22 +234,22 @@ If we add time as an additional strictly increasing coordinate into path i.e. $\
   Since the first coordinate is strictly increasing, the only tree-like equivalent path is itself i.e. $\mathcal{P}^{1}_{0} = \mathcal{C}^{1}_{0}([0,T],\overline{E})$, which concludes the proof. 
 \end{proof}
 \begin{proposition}\label{surjective}
-  Neither is $\mathbf{Sig}_{[0,1]}$ surjective nor the range of which is a linear subspace of $\mathbf{T}(E)$.
+  Neither is $\mathbf{Sig}_{[0,1]}$ surjective nor the range of which a linear subspace of $\mathbf{T}(E)$.
 \end{proposition}
 \begin{proof}
   Let $X \in \mathcal{C}^{1}_{0}([0,T],E)$ and w.l.o.g assume $X_{0} = 0$. 
-  By integration by parts
+  By integration by parts, we obtain that 
   \begin{equation}
     \begin{split}
       \mathbf{Sig}_{[0,1]}(X)_{1,2} + \mathbf{Sig}_{[0,1]}(X)_{2,1} &=  \int_{t_{1}<t_{2} \in [0,1]}dX_{t_{1}}^{1}dX_{t_{2}}^{2} + \int_{t_{1}<t_{2} \in [0,1]}dX_{t_{1}}^{1}dX_{t_{2}}^{2}\\
       &=  \int_{t \in [0,1]}d(X_{t}^{1}X_{t}^{2}) = \mathbf{Sig}_{[0,1]}(X)_{1}~\mathbf{Sig}_{[0,1]}(X)_{2}.
     \end{split}
   \end{equation}
-  Thus, $\mathbf{Sig}_{[0,1]}$ is neither surjective nor the range of it a linear subspace of $\mathbf{T}(E)$.
+  Thus, $\mathbf{Sig}_{[0,1]}$ is neither surjective nor the range of which a linear subspace of $\mathbf{T}(E)$.
 \end{proof}
 
 \begin{theorem}[Weak universality]\label{weakuniversality}
-  Let $A$ be a compact set of $\mathbf{Sig}(\mathcal{C}^{1}_{0}(J,E))$, then for all $f \colon A \to \R$ continuous and for all $\epsilon > 0$, there exists a linear functional $L \in \mathbf{T}(E)^{*}$ such that 
+  Let $A$ be a compact subset of $\mathbf{Sig}(\mathcal{C}^{1}_{0}(J,E))$, then for all $f \colon A \to \R$ continuous and for all $\epsilon > 0$, there exists a linear functional $L \in \mathbf{T}(E)^{*}$ such that 
   \begin{equation}
     \sup_{\mathbf{a}\in A}\lVert f(\mathbf{a}) - L(\mathbf{a})\rVert \leq \epsilon
   \end{equation}
@@ -268,7 +260,7 @@ If we add time as an additional strictly increasing coordinate into path i.e. $\
 
 
 \subsection{Signature stream}
-Instead of viewing signature as a static object, we can consider signature stream of a path $X \in \mathcal{C}^{1}_{0}([0,T],E)$ as a process $\big(\mathbf{Sig}_{[0,t]}(X)\big)_{[0,T]}$ taking values in $\mathbf{T}(E)$.
+Instead of viewing signature as a static object, we can consider signature stream of a path $X \in \mathcal{C}^{1}_{0}([0,T],E)$ as a process $\big(\mathbf{Sig}_{[0,t]}(X)\big)_{t \in [0,T]}$ taking values in $\mathbf{T}(E)$.
 \begin{proposition}
   Let $X \in \mathcal{C}^{1}_{0}([0,T],E)$ and define $\pi_{n} \colon \mathbf{T}(E) \to \mathbf{T}^{(n)}(E)$ the projection such that for all $\mathbf{x} \in \mathbf{T}(E)$ 
   \begin{equation}\label{projection}
@@ -295,9 +287,9 @@ Instead of viewing signature as a static object, we can consider signature strea
   \end{equation}
 \end{definition}
 \begin{theorem}[Chen's identity]
-  Let $X \in \mathcal{C}^{1}_{0}([0,s],E)$ and  $Y \in \mathcal{C}^{1}_{0}([s,t],E)$. Then 
+  Let $X \in \mathcal{C}^{1}_{0}([r,s],E)$ and  $Y \in \mathcal{C}^{1}_{0}([s,t],E)$. Then 
   \begin{equation}
-    \mathbf{Sig}_{[0,t]}(X\star Y) = \mathbf{Sig}_{[0,s]}(X) \otimes \mathbf{Sig}_{[s,t]}(Y)
+    \mathbf{Sig}_{[r,t]}(X\star Y) = \mathbf{Sig}_{[r,s]}(X) \otimes \mathbf{Sig}_{[s,t]}(Y)
   \end{equation}
 \end{theorem}
 \begin{proof}
@@ -313,13 +305,13 @@ Instead of viewing signature as a static object, we can consider signature strea
 
 
 \begin{example}[Linear controlled differential equation]\label{lcde}
-  Let $E = \R^{d}, W = \R^{n}$. let $X \in \mathcal{C}^{1}_{0}([0,T],E)$ and let $B\colon E \to \mathbf{L}(W)$ be a bounded linear map. Consider 
+  Let $E = \R^{d}, W = \R^{n}$. Let $X \in \mathcal{C}^{1}_{0}([0,T],E)$ and let $B\colon E \to \mathbf{L}(W)$ be a bounded linear map. Consider 
   \begin{equation}
-    dY_t = B(dX_{t})(Y_{t}),\quad Y_{0} \in W  
+    dY_t = B(dX_{t})(Y_{t})
   \end{equation}
   If we denote $B^{k} \coloneq B(e_{k})$, $k = 1,\cdots, d$ then 
   \begin{equation}\label{linear_control}
-    dY_t = \sum_{k=1}^{d}B^{k}(Y_{t})dX^{k}_{t},\quad Y_{0} \in W .
+    dY_t = \sum_{k=1}^{d}B^{k}(Y_{t})dX^{k}_{t}.
   \end{equation}
   It follows from Picard's iteration that 
   \begin{equation}
@@ -340,11 +332,11 @@ Instead of viewing signature as a static object, we can consider signature strea
   \begin{equation} 
     Y_{t} = \Bigg(I + \sum_{k=1}^{\infty}B^{\otimes k}\int_{t_{1}<\cdots< t_{k} \in [0,t]}dX_{t_{1}}\otimes\cdots\otimes dX_{t_{k}}\Bigg) Y_{0}.
   \end{equation}
-  In the language of signature 
+  In the language of signature, we have that 
   \begin{equation} 
     Y_{t} = \Big(\sum_{k=0}^{\infty}B^{\otimes k}\Big) \Big(\mathbf{Sig}_{[0,t]}(X)\Big) Y_{0}.
   \end{equation}
-  which implies that the solution of controlled SDE could be written as a linear function on signature stream of driving path. This implies that signature stream is a promising feature for controlled ODE.
+ This implies that the solution of controlled SDE could be written as a linear function on signature stream of driving path. This implies that signature stream is a promising feature for controlled ODE.
 \end{example}
 \begin{remark}
   Similar result holds for smooth vector field with some additional boundness assumption and the proof is in alignment with the argument above, see \cite{liao2019learning}. 
@@ -355,7 +347,7 @@ From Proposition \ref{surjective}, we know that $\mathbf{Sig}_{[0,1]}$ is neithe
   \begin{equation}
     \mathbf{Sig}_{[0,1]}(X) = \sum_{k\geq 0}\frac{\mathbf{x}^{\otimes k}}{k!}
   \end{equation}
-  which is the power series expansion of exponential function. Motivated by this, we curve the signature space by taking `logarithm' which we defined below. 
+  which is the power series expansion of exponential function. Motivated by this, we curve the signature space by taking `logarithm' which we define below. 
 \begin{definition}
   Define $\mathbf{T}_{1}(E) = \{\mathbf{a} \in \mathbf{T}(E)\colon \mathbf{a}_{0} = 1\}$. Let $\mathbf{a} \in \mathbf{T}_{1}(E)$, we define the exponential be 
   \begin{equation}
@@ -443,13 +435,13 @@ Recall the weak universality of signature, we restrict ourselves on a compact se
 \begin{equation}
   \begin{split}
     \mathbf{Sig}_{J}(\lambda X)_{k} &= \int_{t_{1}\leq\cdots\leq t_{k} \in J}d\lambda X_{t_{1}}\otimes\cdots\otimes d\lambda  X_{t_{k}}\\ 
-    &= \lambda^{k}\int_{t_{1}\leq\cdots\leq t_{k} \in J}dX_{t_{1}}\otimes\cdots\otimes dX_{t_{m}} = \lambda^{k}\mathbf{Sig}_{J}(X)_{k}
+    &= \lambda^{k}\int_{t_{1}\leq\cdots\leq t_{k} \in J}dX_{t_{1}}\otimes\cdots\otimes dX_{t_{m}} = \lambda^{k}\mathbf{Sig}_{J}(X)_{k}.
   \end{split}
 \end{equation}
-Thus, the norm of the scaled path
+Thus, the norm of the scaled path is that 
 \begin{equation}
   \begin{split}
-    \big\lVert \mathbf{Sig}_{J}(\lambda X)\big\rVert_{\mathbf{T}(E)}^{2} &= \sum_{k\geq 0} \lambda^{2k} \lVert \mathbf{Sig}_{J}(X)_{k}\rVert_{E^{\otimes k}}^{2} \\
+    \big\lVert \mathbf{Sig}_{J}(\lambda X)\big\rVert_{\mathbf{T}(E)}^{2} &= \sum_{k\geq 0} \lambda^{2k} \lVert \mathbf{Sig}_{J}(X)_{k}\rVert_{E^{\otimes k}}^{2}. \\
     % &\neq \lambda \sqrt{\sum_{k\geq 0}\lVert \mathbf{Sig}_{J}(X)_{k}\rVert_{E^{\otimes k}}^{2} } = \lambda\big\lVert \mathbf{Sig}_{J}( X)\big\rVert_{\mathbf{T}(E)}\\
   \end{split}
 \end{equation}
@@ -474,7 +466,7 @@ The existence of tensor normalization is not trivial because of the nonlinear re
     \Phi = \Lambda \circ \mathbf{Sig}_{J}
   \end{equation}
   \begin{enumerate}[(i)]
-    \item is a continuous injection from $\mathcal{P}_{0}^{1}$ in to a bounded subset of $\mathbf{T}(E)$,
+    \item is a continuous injection from $\mathcal{P}_{0}^{1}$ into a bounded subset of $\mathbf{T}(E)$,
     \item is universal to $C_{b}(\mathcal{P}_{0}^{1},\R)$, equipped with the strict topology, 
     \item is characteristic to the space of finite regular Borel measures on $\mathcal{P}_{0}^{1}$.
   \end{enumerate}
@@ -498,38 +490,38 @@ The existence of tensor normalization is not trivial because of the nonlinear re
 \begin{definition}[Maximum mean distance]
   We define the maximum mean distance (MMD) as 
   \begin{equation}
-    d_{\mathcal{G}}(\P,\mathbb{Q}) = \sup_{f\in\mathcal{G}}\lvert \E_{\P}[f] - \E_{\mathbb{Q}}[f]\rvert 
+    d_{\mathcal{G}}(\P,\mathbb{Q}) = \sup_{f\in\mathcal{G}}\lvert \E_{\P}[f] - \E_{\mathbb{Q}}[f]\rvert,
   \end{equation}
   where $\mathcal{G} \subseteq \R^{\mathcal{P}_{0}^{1}}$.
 \end{definition}
 Let $ \mathcal{G} = \{\langle\mathbf{l},\Phi(\cdot)\rangle_{\mathbf{T}_{1}} \colon \mathbf{l} \in \mathbf{T}_{1}, \lVert \mathbf{l}\rVert_{\mathbf{T}_{1}} \leq 1\}$, then by Corollary \ref{equalequal}
 \begin{equation}
-  d_{\mathcal{G}}(\P,\mathbb{Q}) = 0\quad\text{iff}\quad \P = \mathbb{Q}
+  d_{\mathcal{G}}(\P,\mathbb{Q}) = 0\quad\text{iff}\quad \P = \mathbb{Q},
 \end{equation}
-which implies that  a metric, see \cite{1993Probability}. Moreover 
+which implies that it is a metric, see \cite{1993Probability}. Moreover 
 \begin{equation}
   \begin{split}
     d_{\mathcal{G}}(\P,\mathbb{Q}) &= \sup_{f\in\mathcal{G}}\lvert \E_{\P}[f] - \E_{\mathbb{Q}}[f]\rvert \\
     &= \sup_{f\in\mathcal{G}}\Big\lvert \E_{(X,Y) \sim \P\otimes\mathbb{Q}}[f(X) - f(Y)]\Big\rvert \\  
-    &= \sup_{\mathbf{l} \in \mathbf{T}_{1}, \lVert \mathbf{l}\rVert_{\mathbf{T}_{1}} \leq 1}\Big\lvert \E_{(X,Y) \sim \P\otimes\mathbb{Q}}\big[\langle \mathbf{l}, \Phi(X) - \Phi(Y)\rangle_{\mathbf{T}_{1}}\big]\Big\rvert \\  
+    &= \sup_{\mathbf{l} \in \mathbf{T}_{1}, \lVert \mathbf{l}\rVert_{\mathbf{T}_{1}} \leq 1}\Big\lvert \E_{(X,Y) \sim \P\otimes\mathbb{Q}}\big[\langle \mathbf{l}, \Phi(X) - \Phi(Y)\rangle_{\mathbf{T}_{1}}\big]\Big\rvert .\\  
   \end{split}
 \end{equation}
 Since $\E_{(X,Y) \sim \P\otimes\mathbb{Q}}\big[\Phi(X) - \Phi(Y)\big] \in \mathbf{T}_{1}$, then 
 \begin{equation}\label{eq348}
   \begin{split}
-    d_{\mathcal{G}}(\P,\mathbb{Q}) &= \E\big[\langle \Phi(X) - \Phi(Y), \Phi(X^{\prime}) - \Phi(Y^{\prime})\rangle_{\mathbf{T}_{1}}\big]\\
+    d_{\mathcal{G}}(\P,\mathbb{Q}) &= \E\big[\langle \Phi(X) - \Phi(Y), \Phi(X^{\prime}) - \Phi(Y^{\prime})\rangle_{\mathbf{T}_{1}}\big],\\
   \end{split}
 \end{equation}
 where $X,Y,X^{\prime},Y^{\prime}$ are independent with $X,X^{\prime}\sim\P$ and $Y,Y^{\prime}\sim\mathbb{Q}$
 \begin{definition}
   We denote $\mathbf{k_{Sig}}\colon \mathbf{T}_{1}\times\mathbf{T}_{1} \to \R$ the signature kernel such that 
   \begin{equation}
-    \mathbf{k_{Sig}}(\cdot,\cdot) = \langle \Phi(\cdot),\Phi(\cdot)\rangle_{\mathbf{T}_{1}}
+    \mathbf{k_{Sig}}(\cdot,\cdot) = \langle \Phi(\cdot),\Phi(\cdot)\rangle_{\mathbf{T}_{1}}.
   \end{equation}
 \end{definition}
 Then we can rewrite the MMD as 
 \begin{equation}
-   d_{\mathcal{G}}(\P,\mathbb{Q}) = \E\big[\mathbf{k_{Sig}}(X,X^{\prime})\big] - 2\E\big[\mathbf{k_{Sig}}(X,Y)\big] + \E\big[\mathbf{k_{Sig}}(Y,Y^{\prime})\big]
+   d_{\mathcal{G}}(\P,\mathbb{Q}) = \E\big[\mathbf{k_{Sig}}(X,X^{\prime})\big] - 2\E\big[\mathbf{k_{Sig}}(X,Y)\big] + \E\big[\mathbf{k_{Sig}}(Y,Y^{\prime})\big],
 \end{equation}
 where $X,Y,X^{\prime},Y^{\prime}$ are independent with $X,X^{\prime}\sim\P$ and $Y,Y^{\prime}\sim\mathbb{Q}$. Similar to the kernel trick in machine learning, the kernel representation of MMD provides a very efficient way evaluating the metric, which we will elaborate in the next section.  
 
@@ -538,7 +530,7 @@ where $X,Y,X^{\prime},Y^{\prime}$ are independent with $X,X^{\prime}\sim\P$ and 
 
 
 \section{Discrete signature feature}
-Let $X \in \mathcal{C}^{1}_{0}([0,1],E)$ and consider a discrete sequence $\mathbf{X} = (X_{0},X_{1/N},\cdots, X_{1}) \in E^{N+1}$. We extend the concept of signature on discrete sequence $E^{N+1}$ by computing signature of the linear interpolation of sequence. From Example \ref{linear_chern} we know the signature of piecewise-linear path is 
+Let $X \in \mathcal{C}^{1}_{0}([0,1],E)$ and we consider a discrete sequence $\mathbf{X} = (X_{0},X_{1/N},\cdots, X_{1}) \in E^{N+1}$. We extend the concept of signature to discrete sequence $E^{N+1}$ by computing signature of the linear interpolation of sequence. From Example \ref{linear_chern} we know the signature of piecewise-linear path is 
 \begin{equation}
   \mathbf{exp}(\mathbf{X}_{1} - \mathbf{X}_{0}) \otimes \cdots \otimes \mathbf{exp}(\mathbf{X}_{N} - \mathbf{X}_{N-1})
 \end{equation}
@@ -576,12 +568,12 @@ In particular, if $m = 1$ we call it growing discrete signature
     If we let $X$ to be the Brownian motion (not in $\mathcal{C}^{1}_{0}$), the growing discrete signature converges to the signature defined with Ito integral, while the high order discrete signature converges to the signature defined with Stratonovich integral. More generally, if we want to approximate a geometric $p$-rough path, we need high order discrete signature at least order $\lfloor p \rfloor$, see \cite{kiraly2019kernels}.
   \end{remark}
   \subsection{Kernel trick}
-  In the same fashion of horner algorithm 
+  In the same fashion of horner algorithm:
   \begin{equation}
-    \begin{aligned}a_{0}&+a_{1}x+a_{2}x^{2}+a_{3}x^{3}+\cdots +a_{n}x^{n}\\&=a_{0}+x{\bigg (}a_{1}+x{\Big (}a_{2}+x{\big (}a_{3}+\cdots +x(a_{n-1}+x\,a_{n})\cdots {\big )}{\Big )}{\bigg )}.\end{aligned}
+    \begin{aligned}a_{0}&+a_{1}x+a_{2}x^{2}+a_{3}x^{3}+\cdots +a_{n}x^{n}\\&=a_{0}+x{\bigg (}a_{1}+x{\Big (}a_{2}+x{\big (}a_{3}+\cdots +x(a_{n-1}+x\,a_{n})\cdots {\big )}{\Big )}{\bigg )},\end{aligned}
   \end{equation}
   we can reduce the computational complexity of discrete signature by dynamic programming principle.
-  \begin{proposition}Let $\mathbf{X} = (\mathbf{X}_{i})_{i=0}^{N} \in E^{N+1}$ and let $\mathbf{sig}_{[0,N]}$ be the growing signature
+  \begin{proposition}Let $\mathbf{X} = (\mathbf{X}_{i})_{i=0}^{N} \in E^{N+1}$ and let $\mathbf{sig}_{[0,N]}$ be the growing signature:
   \begin{equation}
     \begin{split}
       \mathbf{sig}_{[0,N]}(\mathbf{X}) &= \mathbf{sig}_{[0,N-1]}(\mathbf{X}) \otimes(1 + \triangle \mathbf{X}_{N})\\
@@ -589,7 +581,7 @@ In particular, if $m = 1$ we call it growing discrete signature
     \end{split}
   \end{equation}
   \end{proposition}
-  This is too surprise because we just rewrite the Chen's identity. However, this greatly reduce the complexity when computing the kernel. 
+  This greatly reduce the complexity when computing the kernel. 
   \begin{definition} Let $\mathbf{sig}_{[0,N]}$ be the discrete signature, then we denote $\mathbf{k}_{\mathbf{sig}}$ the discrete signature kernel such that 
   \begin{equation}
     \mathbf{k}_{\mathbf{sig}}(\cdot,\cdot) = \langle \mathbf{sig}_{[0,N]}(\cdot),\mathbf{sig}_{[0,N]}(\cdot)\rangle_{\mathbf{T}_{1}}
@@ -604,14 +596,14 @@ In particular, if $m = 1$ we call it growing discrete signature
   \begin{remark}
     Similar formulas hold for high order discrete signature and kernel, see \cite{kiraly2019kernels}. 
   \end{remark}
-  This result is important for numerical implementation in two aspects. First is that we avoid computing the tensor but the inner product directly by kernel trick. If somehow (for better characteristic capacity) you would like lift paths to a RKHS space $(H,\kappa)$ before applying the signature kernel, this formula avoids explicitly compute $\triangle\kappa_{X}$ and $\triangle\kappa_{Y}$. but approximating with
+  This result is important for numerical implementation in two aspects. First is that we avoid computing the tensor but the inner product directly by kernel trick. If somehow (for better characteristic capacity) you would like to lift paths to a RKHS space $(H,\kappa)$ before applying the signature kernel, this formula avoids explicitly computing $\triangle\kappa_{X}$ and $\triangle\kappa_{Y}$, but approximating with
     \begin{equation}
-      \langle\triangle\kappa_{X_{i}}, \triangle\kappa_{Y_{j}}\rangle\approx\kappa(X_{i+1},Y_{j+1}) + \kappa(X_{i},Y_{j}) - \kappa(X_{i},Y_{j+1}) - \kappa(X_{i+1},Y_{j}),
+      \langle\triangle\kappa_{X_{i}}, \triangle\kappa_{Y_{j}}\rangle\approx\kappa(X_{i+1},Y_{j+1}) + \kappa(X_{i},Y_{j}) - \kappa(X_{i},Y_{j+1}) - \kappa(X_{i+1},Y_{j}).
     \end{equation}
-    which reduce a potentially infinite computational complexity if $(H,\kappa)$ is an infinite dimensional space, see \cite{chevyrev2018signature}. Secondly, the recursive structure in time implies that computing the inner product of signature stream is as cheap as computing the inner product of signature. This recursive feature can also be used for more general inner product between tensor and discrete signature. 
+    This reduces a potentially `infinite' computational complexity, see \cite{chevyrev2018signature}, to a `finite' complexity. Secondly, the recursive structure in time implies that computing the inner product of signature stream is as cheap as computing the inner product of signature at terminal time. This recursive feature can also be used for more general inner products between tensor and discrete signature. 
 
 \section{Low-rank-signature}
-We extend the recursive method from discrete signature to tensor with similar recursive structure. Let $\mathbf{l} = (\mathbf{l}_{k})_{k=0}^{\infty} \in \mathbf{T}_{1}(E)$, let $\mathbf{X} = (\mathbf{X}_{i})_{i=0}^{N} \in E^{N+1}$,and let $\mathbf{sig}_{[0,N]}$ be the growing signature. If $\mathbf{l}_{k} = \mathbf{l}_{k-1}\otimes l_{k}$ then
+We extend the recursive method from discrete signature to tensor with similar recursive structure. Let $\mathbf{l} = (\mathbf{l}_{k})_{k=0}^{\infty} \in \mathbf{T}_{1}(E)$, let $\mathbf{X} = (\mathbf{X}_{i})_{i=0}^{N} \in E^{N+1}$, and let $\mathbf{sig}_{[0,N]}$ be the growing signature. If $\mathbf{l}_{k} = \mathbf{l}_{k-1}\otimes l_{k}$, then
   \begin{equation}
     \begin{split}
      \langle \mathbf{l}, \mathbf{sig}_{[0,N]}(\mathbf{X}) \rangle_{\mathbf{T}_{1}(E)} &= \sum_{k\geq 0}\langle \mathbf{l}_{k} , \mathbf{sig}^{(k)}_{[0,N]}(\mathbf{X}) \rangle_{\mathbf{T}_{1}(E)} \\
@@ -829,7 +821,7 @@ All variations of VAEs above are designed for samples and latent variables on Eu
 
 
 \chapter{Market Generator}\label{marketgenerator}
-In this chapter, we combine signature features and variational autoencoders introduced above to construct a market generator. Recall our problem setting: by observing one realization of stochastic process, we wish to infer the distribution of the process and stimulate paths under the learnt distribution. For example, given the S\&P index of last 12 months, we wish to construct market generator which generates possible paths of S\&P index of next months for us, and hopefully generating paths of S\&P index to the next two months. Our algorithm can be subdivided into the following five parts, of which we present a brief overview below:
+In this chapter, we combine signature features and variational autoencoders introduced above to construct a market generator. Recall our problem setting: by observing one realization of stochastic process, we wish to infer the distribution of the process and simulate paths under the learnt distribution. For example, given the S\&P index of last 12 months, we wish to construct market generator which generates possible paths of S\&P index of next months for us, and hopefully generating paths of S\&P index to the next two months. Our algorithm can be subdivided into the following five parts, of which we present a brief overview below:
 \begin{enumerate}[start=1,label={( Step \arabic*):}]
   \item \textbf{Time series splitting:} Split single realization of path $(x_{0:N})$ to multiple subpaths $(x_{i:i+n})_{i=1}^{m}$. This subdivision helps to generate multiple samples for training. 
   \item \textbf{Path to signature features:} Applying the signature feature map to $m$ subpaths $(x_{i:i+n})_{i=1}$ gives $m$ samples on $\R^{d}$, where $d$ depends on the choice of signature feature map.   
@@ -905,35 +897,35 @@ They also pointed out that the choice of threshold is conservative and can be im
 % \section{Evaluation with lifting and normalizing}
 
 \chapter{Numerical Implementation}\label{NumericalImplementation}
-In this chapter, we present numerical implementations of our algorithm. We present numerical comparisons between different evaluation metrics and inversion algorithms. Then we show numerical results of market generator introduced last chapter. At the end of this chapter, we supplement numerical examples highlighting the efficiency of signature features and provide a new approach to stimulate time series. 
+In this chapter, we present numerical implementations of our algorithm. We make numerical comparisons between different evaluation metrics and comparisons between different inversion algorithms. Moreover, we show numerical results of the market generator introduced in last chapter. In the end, we supplement numerical examples highlighting the efficiency of signature features and provide a new approach to simulate time series. 
 
 
 \section{Inversion algorithm}
-In this section, we display numerical implementations of our neural methods inverting log-signature to path and compare our method with the evolution method first introduced in \cite{buehler2020data}. We show with numerical facts that our neural method outperforms the evolution method in multiple aspects. Also, we point out that the time augmentation outperforms lead-lag transformation in the log-signature inversion task of geometric brownian motion. At last, we show that our neural network can be pertained and then be used to inverse a collection of log-signature without training.
+In this section, we display numerical implementations of our neural methods inverting log-signatures to paths and compare our method with the evolution method introduced in \cite{buehler2020data}. We show with numerical facts that our neural method outperforms the evolution method in multiple aspects. Also, we point out that the time augmentation outperforms lead-lag transformation in the log-signature inversion task of geometric brownian motion. In the end, we show that our neural network can be pertained and then be used to inverse a collection of log-signature without training.
 \subsection{Single log-signature inversion}
-We first consider a 2-dimensional Black-scholes model of independent assets $S_{t} = (S^{1}_{t}, S^{2}_{t})$, where
+We first consider a 2-dimensional Black-Scholes model of independent assets $S = (S^{1}_{t}, S^{2}_{t})_{t\geq 0}$:
 \begin{equation*}
   S^{k}_{t} = e^{W^{k}_{t} - \frac{t}{2}},\quad k = 1,2
 \end{equation*}
-with $W^{1}$ and $W^{2}$ being independent brownian motions. We sample the $2$-d path on $t = \frac{i}{N}$, $i = 0,\cdots N$ where $N = 20$. Then we compute the discrete log-signature of the discrete stream. Now we apply our neural method to inverse the log-signature in order to retrieve the original path.
+where $(W^{1}_{t})_{t\geq 0}$ and $(W^{2}_{t})_{t\geq 0}$ are independent brownian motions. We sample paths on $t_{i} = \frac{i}{N}$, $i = 0,\cdots N$ where $N = 20$. Then we compute the truncated discrete log-signature of the discrete stream. Now we apply our neural method to inverse the log-signature in order to retrieve the original path.
  \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/inverse2.png}
-    \caption{Inverse 2-d path with neural method}
+    \caption{Inverse 2-d geometric brownian path with neural method}
 \end{figure}
-The $L^{2}$ error of log-signatures between real path and recovered path are always small after training. But sometimes (frequency like 1 time in 5 experiments) we found that the recovered path is not close to the original one even though their log-signatures are very close under $L^{2}$ norm. Possible reasons for this phenomenon follows.
+The $L^{2}$ error of log-signatures between real path and recovered path are always small after training. But sometimes (probability around 1 time in 5 experiments) we found that the recovered path is not close to the original one even though their log-signatures are very close under $L^{2}$ norm. Possible reasons for this phenomenon follows.
 \begin{enumerate}[(i)]
   \item The path embeds almost tree-like structure. This can be solved by time augmentation. 
-  \item $L^{2}$-error on log-signature space is not a good loss. We can weight different coordinates. However, there is actually no good reason to explain why should we do so and also there is no convincing way to prefix weights.
-  \item Neural-network is not well designed and generates paths that are too wild and prior on paths space should be added. A more delicate study of neural network structure should be studied in future work.
+  \item $L^{2}$-error on log-signature space is not a good loss. We can weight different coordinates. However, there is actually no good reason to explain why should we do so, and also there is no convincing way to prefix weights.
+  \item Neural-network is not well designed and may generate paths that are too wild, so prior on paths space should be added. A more delicate study of neural network structure should be studied in future work.
 \end{enumerate}
 A direct fix is to apply time augmentation and we present the numerical improvement below. 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figs/inverse7.png}
-  \caption{Inverse 2-d path with neural method}
+  \caption{Inverse 2-d geometric brownian path with neural method}
 \end{figure}
-Next, we consider $1$-d path $X_{t} = S^{1}_{t}$ with observation $(X_{i})_{i=0}^{N}$ on $t = \frac{i}{N}$, $i = 0,\cdots N$ where $N = 20$. We apply lead-lag transformation on $(X_{i})_{i=0}^{N}$ which gives a $2$-dimensional path $(\tilde{X}_{i})_{i=0}^{N}$. Then we can use the same procedure as before. We compare our method with the evolution algorithm by not only comparing the retrieved path and comparing the replication strategy of call option w.r.t the retrieved path. 
+Next, we consider $1$-d path $X = (S^{1}_{t})_{t\geq 0}$ with observation $(X_{i})_{i=0}^{N}$ on $t_{i} = \frac{i}{N}$, $i = 0,\cdots N$ where $N = 20$. We apply lead-lag transformation on $(X_{i})_{i=0}^{N}$ which gives a $2$-dimensional stream $(\tilde{X}_{i})_{i=0}^{N}$. Then we can use the same procedure as before. We compare our method with the evolution algorithm by not only comparing the retrieved path but also comparing the replication strategy of European call option w.r.t the retrieved path. 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figs/inverse9.png}
@@ -941,13 +933,13 @@ Next, we consider $1$-d path $X_{t} = S^{1}_{t}$ with observation $(X_{i})_{i=0}
 \end{figure}
 The neural method with lead-lag slightly performs better than the evolution algorithm with lead-lag in most cases, but the difference is negligible. However, the neural method is much faster! It takes around $5$ seconds to retrieve a path but evolution algorithm takes around $300$ seconds. Moreover, we observe that the neural method with time augmentation outperforms the other two methods and it is also more stable across experiments.   
 \subsection{Multiple log-signatures inversion}
-By the uniqueness of log-signature after time-augmentation, log-signature map has a unique inverse mapping. We train an autoencoder in order to learn this inverse map on a data set consisting of brownian paths $(W_{i})_{i=0}^{N}$ on $t = \frac{i}{N}$, $i = 0,\cdots N$ where $N = 20$, together with the time augmentation trick. 
+By the uniqueness of log-signature after time-augmentation, log-signature map has a unique inverse mapping if we fix the starting point of the path. We train an autoencoder in order to learn this inverse map on a data set of discrete brownian paths $(W_{i})_{i=0}^{N}$ on $t_{i} = \frac{i}{N}$, $i = 0,\cdots N$ where $N = 20$, together with the time augmentation. 
  \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figs/inverse10.png}
   \caption{Neural method on training set }
 \end{figure}
-Then, we test the trained autoencoder on a collection of brownian paths independent with training paths.
+Then, we test the trained autoencoder on a collection of brownian paths sampled independent with training paths.
  \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figs/inverse11.png}
@@ -959,13 +951,13 @@ Next, we test the trained autoencoder on a collection of geometric brownian path
   \includegraphics[width=\textwidth]{figs/inverse12.png}
   \caption{Neural method on testing set }
 \end{figure}
-We observe that the neural method not only performs very well on test processes, but also keeps stable and robust across different distributions. Given that the design of our neural network is just a very simple ReLU neural network with 3 hidden layers, this result is very surprising. This inspires us to pre-train the autoencoder on a large set do not change the parameter when inverting log-signatures. This pre-training approach also enables us to design a penalty on latent space because we actually know original paths of the training data. This idea should be made rigorous and implemented in future work. 
+We observe that the neural method not only performs very well on test processes, but also keeps stable and robust across different distributions. Given that the design of our neural network is just a very simple ReLU neural network with 3 hidden layers, this result is very surprising. This inspires us to pre-train the autoencoder on a large set. This pre-training approach also enables us to design a penalty on latent space because we actually know original paths of the training data. This idea should be made rigorous and implemented in future work. 
 
 
 
 
 \section{Evaluation}
-As we have discussed in previous chapter, efficient evaluation of the similarity between two distributions of time series is not a easy task. Through this paper, we applied the MMD test based on signature kernels introduced in \cite{chevyrev2018signature} to characterize the similarity. In this section, we discuss numerical implementation of signature kernels and variations of signature kernels, meanwhile comparing their performance in differentiating distributions of time series. 
+As what we have discussed in previous chapter, efficient evaluation of the similarity between two distributions of time series is not a easy task. Through this paper, we applied the MMD test based on signature kernels introduced in \cite{chevyrev2018signature} to characterize the similarity. In this section, we discuss numerical implementation of signature kernels and variations of signature kernels, meanwhile comparing their performance in differentiating distributions of time series. 
 \begin{itemize}
      \item \textbf{Signature kernel}: inner product of signature 
     %  $\langle\mathbf{Sig}(X),\mathbf{Sig}(X^{\prime})\rangle_{\mathbf{T_{1}}}$
@@ -977,14 +969,14 @@ As we have discussed in previous chapter, efficient evaluation of the similarity
        \end{aligned}\right.
      \end{equation*}
      \item \textbf{Batch normalized kernel}: before applying normalized kernel, pre-normalize all the signature in batch with $\delta_{\lambda}$ such that $\lVert \delta_{\lambda}(\mathbf{Sig})\rVert_{\mathbf{T}_{1}} \leq C$.
-     \item \textbf{Lifted signature kernel}: lift the paths to RKHS space $(H,\kappa)$ and compute the signature kernel by the following approximation
+     \item \textbf{Lifted signature kernel}: lift paths to RKHS space $(H,\kappa)$ and compute the signature kernel by the following approximation
      \begin{equation}\label{approkernel}
       \langle\triangle\kappa_{X_{i}}, \triangle\kappa_{Y_{j}}\rangle\approx\kappa(X_{i+1},Y_{j+1}) + \kappa(X_{i},Y_{j}) - \kappa(X_{i},Y_{j+1}) - \kappa(X_{i+1},Y_{j}),
     \end{equation}
 \end{itemize}
-Notice that even though normalized signature kernel scales all samples in a `smooth' (in fact Lipschitz here) way but all signatures are scaled by different factor. A direct consequence is that $X$ will be consider as the same as $\lambda X$ for all $\lambda > 1$ if the norm of signatures are large. To overcome this scaling problem, we first normalize all signatures by the mean of scaling factor among all samples. This method works very well in practice when the norm of signatures are large. An alternative to to improve performance is to consider Lifted signature kernel. We first lift paths to a RKHS space and then compute the signature. It is surprising that this kernel can also be computed efficiently with the approximation \eqref{approkernel} and the recursive algorithm in \cite{chevyrev2018signature}. We show that this lifting greatly increase the performance but the drawback is that this kernel can not be computed from signature. 
+Notice that even though normalized signature kernel scales all samples in a `smooth' (in fact Lipschitz here) way, but all signatures are scaled by different factor. A direct consequence is that $X$ will be considered as the same as $\lambda X$ for all $\lambda > 1$ if the norm of signatures are large. To overcome this scaling problem, we first normalize all signatures by the same scaling factor among all samples. This method works very well in practice when the norm of signatures are large. An alternative to improve performance is to consider the lifted signature kernel. We first lift paths to a RKHS space and then compute the signature. This kernel can also be computed efficiently with the approximation \eqref{approkernel} and the recursive algorithm in \cite{chevyrev2018signature}. We show that this lifting greatly increases the performance but the drawback is that this kernel can not be computed from signature directly. 
 \subsection{Separating distributions}
-Firstly, we compare the signature kernel with the signature kernel after lifting. We choose the same numerical case as in \cite{chevyrev2018signature}, the task of differentiating the following two distributions. 
+Firstly, we compare the signature kernel with the lifted signature kernel. We choose the same numerical case as in \cite{chevyrev2018signature}, the task of differentiating the following two distributions. 
  \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/estimation1.png}
@@ -996,7 +988,7 @@ We consider the exponential lifted signature kernel and compare it with signatur
     \includegraphics[width=\textwidth]{figs/estimation2.png}
     \caption{Random walks}
 \end{figure}
-Exponential lifted signature kernel outperforms the signature kernel. Moreover, we also try some different RKHS space such as square exponential. But we found exponential lifted signature kernel usually outperform other choices, which is the same conclusion drawn in \cite{chevyrev2018signature}. Next, we apply all of the four kernels introduced above to compare time series generated by rough Bergomi model with different parameters. 
+Exponential lifted signature kernel outperforms the signature kernel. Moreover, we also try some different RKHS space such as square exponential. But we found exponential lifted signature kernel usually outperform other choices, which is the same conclusion drawn in \cite{chevyrev2018signature}. Next, we apply all of the four kernels introduced above to differentiate time series generated by rough Bergomi model with different parameters. 
 \begin{equation}
   \begin{split}
     dX_{t} &= -\frac{1}{2}V_{t}dt + \sqrt{V_{t}}dW_{t}, \quad X_{0} = \log(S_{0})\\
@@ -1005,7 +997,7 @@ Exponential lifted signature kernel outperforms the signature kernel. Moreover, 
     \langle Z, W \rangle_{t} &= \rho t, \quad \rho \in (-1,1)
   \end{split}
 \end{equation} 
-where $X = \log(S)$, and $\mathcal{E}(\cdot)$ denotes the stochastic exponential and $C_{H} = \frac{2 H \Gamma(\frac{3}{2} - H)}{\Gamma(H+\frac{1}{2})\Gamma(2 - 2H)}$. 
+where $X = \log(S)$, $\mathcal{E}(\cdot)$ being the stochastic exponential, and $C_{H} = \frac{2 H \Gamma(\frac{3}{2} - H)}{\Gamma(H+\frac{1}{2})\Gamma(2 - 2H)}$. 
  \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/estimation3.png}
@@ -1017,7 +1009,7 @@ We consider the following two cases: (i) $X$ and $Y$ from the same distribution 
     \includegraphics[width=\textwidth]{figs/estimation4.png}
     \caption{Support of $T_{U}^{2}$ of two cases}
 \end{figure}
-We notice that signature kernel fails and exponentially lifted signature kernel performs better than normalized signature kernel. Moreover, we observe that the normalized signature kernel also fails if we amplify values of paths. This motivates us to design the batch normalized signature kernel which uniformly scale signature to a considerable range. Now, we consider the same numerical problem of rough Bergomi model with value of paths amplified by scale $10$.
+We notice that signature kernel fails and exponentially lifted signature kernel performs better than normalized signature kernel. Moreover, we observe that the normalized signature kernel also fails if we amplify values of paths. This motivates us to design the batch normalized signature kernel which uniformly scale signature to a considerable range. Now, we consider the same numerical problem of rough Bergomi model with values of paths amplified by scale $10$.
  \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/estimation5.png}
@@ -1126,11 +1118,11 @@ Then we quantify the difference between VAE with normal prior and VAE with stude
 We observe that student-t prior in general outperforms the normal prior but the difference is negligible. However, this proves that prior of VAE matters and a following question is that what prior is the best? In another word, we are interested in the property of the signature distribution, for example, whether the distribution on the signature space is heavy-tail or not, which should be studied in future work. 
 
 \section{Path simulation with signature}
-In this section, we consider numerical simulations of the following stochastic differential equation
+In this section, we consider numerical simulations of the following stochastic differential equation:
 \begin{equation*}
-  dX_t = \sum_{k=1}^{m} B^{k}X_{t}dW^{k}_{t},\quad X_{t}\in \mathbb{R}^{n}, W_{t}\in\mathbb{R}^{m}, B^{k} \in \mathbb{R}^{n\times n}
+  dX_t = \sum_{k=1}^{m} B^{k}X_{t}dW^{k}_{t},\quad X_{0}\in \mathbb{R}^{n},
 \end{equation*}
-where $W_{t}$ is a Brownian motion on $\R^{m}$. We choose $m=n=2$ and 
+where $B^{k} \in \mathbb{R}^{n\times n}, k = 1,\cdots, m$ and $(W_{t})_{t\geq 0}$ is an $m$-dimensional Brownian motion. We take $m=n=2$ and 
 \begin{equation*}
   B^{1} = \begin{bmatrix}
     0.1& 0.2\\
@@ -1141,45 +1133,47 @@ where $W_{t}$ is a Brownian motion on $\R^{m}$. We choose $m=n=2$ and
     0.2& 0.1
   \end{bmatrix}.
 \end{equation*}
-Then we stimulate the differential equation with signatures.
+Then we simulate the differential equation with signatures:
 \begin{equation*}
   \begin{split}
     X_t &= \sum_{d = 0}^{\infty}\sum_{i_{1},\cdots,i_{d} = 1}^{n} \bigg(\int_{0\leq t_{1}\leq\cdots\leq t_{d}\leq t}dW^{i_{1}}_{t_{1}}\cdots dW^{i_{d}}_{t_{d}}\bigg)B^{i_{d}}\cdots B^{i_{1}} X_{0}\\
-    &= \sum_{d = 0}^{\infty}\sum_{i_{1},\cdots,i_{d} = 1}^{n} \mathbf{Sig}^{i_{1},\cdots,i_{d}}_{[0,t]}(W) B^{i_{d}}\cdots B^{i_{1}} \cdot X_{0}\\
+    &= \sum_{d = 0}^{\infty}\sum_{i_{1},\cdots,i_{d} = 1}^{n} \mathbf{Sig}^{i_{1},\cdots,i_{d}}_{[0,t]}(W) B^{i_{d}}\cdots B^{i_{1}} X_{0}.\\
   \end{split}
 \end{equation*}
-We approximate the signature by discrete growing signature. This is important because if we use higher order, we implicitly assume Stratonovich integral which is not the case here. Or we are using a Milstein scheme and implicitly assume the commutativity of $B^{1}$ and $B^{2}$ if we use second order discrete truncated signature.
-\begin{equation*}
-  \begin{bmatrix}
-    0.1& 0.2\\
-    0.3& 0.4
-  \end{bmatrix}
-  \begin{bmatrix}
-    0.4& 0.3\\
-    0.2& 0.1
-  \end{bmatrix} 
-  - 
-  \begin{bmatrix}
-    0.4& 0.3\\
-    0.2& 0.1
-  \end{bmatrix}
-  \begin{bmatrix}
-    0.1& 0.2\\
-    0.3& 0.4
-  \end{bmatrix}
-  = 
-  \begin{bmatrix}
-    -0.05& -0.15\\
-    0.15& 0.05
-  \end{bmatrix} \neq 0
-\end{equation*} 
-Unfortunately, all python packages we know available so far (including esig \url{https://esig.readthedocs.io/}, iisignature \cite{reizenstein2018iisignature}, and Signatory \cite{kidger2020signatory}) only support truncated discrete signature but not support growing signature. We approximate the true path with Euler approximation on a very fine grid.
+We approximate the signature by discrete growing signature. This is important, because if we use higher order, we implicitly assume Stratonovich integration which is not the case here. 
+% Or we are using a Milstein scheme and implicitly assume the commutativity of $B^{1}$ and $B^{2}$ if we use second order discrete truncated signature.
+% \begin{equation*}
+%   \begin{bmatrix}
+%     0.1& 0.2\\
+%     0.3& 0.4
+%   \end{bmatrix}
+%   \begin{bmatrix}
+%     0.4& 0.3\\
+%     0.2& 0.1
+%   \end{bmatrix} 
+%   - 
+%   \begin{bmatrix}
+%     0.4& 0.3\\
+%     0.2& 0.1
+%   \end{bmatrix}
+%   \begin{bmatrix}
+%     0.1& 0.2\\
+%     0.3& 0.4
+%   \end{bmatrix}
+%   = 
+%   \begin{bmatrix}
+%     -0.05& -0.15\\
+%     0.15& 0.05
+%   \end{bmatrix} \neq 0
+% \end{equation*} 
+Unfortunately, all python packages available, up to the best knowledge of author, (including esig \url{https://esig.readthedocs.io/}, iisignature \cite{reizenstein2018iisignature}, and Signatory \cite{kidger2020signatory}) only support truncated discrete signature but not support growing signature. We approximate the true path with Euler approximation on a fine grid ($\lVert\pi\rVert = 10^{-4}$).
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/sde1.png}
-    \caption{Solution of SDE stimulated with Euler method on fine grid}
+    \caption{Solution of SDE simulated with Euler method on fine grid}
 \end{figure}
-Now we compare simulations between growing discrete signature and truncated discrete signature.
+Now we compare the difference in simulation between using growing discrete signature and using truncated discrete signature.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/sde2.png}
@@ -1192,22 +1186,22 @@ Now we compare simulations between growing discrete signature and truncated disc
     \includegraphics[width=\textwidth]{figs/sde5.png}
     \caption{Growing discrete signature}
 \end{figure}
-Growing discrete signature outperforms the truncated signature. As the order of truncated discrete signature increases, it tends to it's limit of approximation, which is the error caused by mis-computing the quadratic variation term using Stratonovich integral. As the order of growing discrete signature increases, the performance tends to the Euler method. This is useful because if we know the signature of our control at $T$, then multiplying the signature with vector field gives a simulation as good as Euler simulation running from $0$ to $T$. The key here is the linear relation between signature and the value of SDE. Inversely, this linear relation can be easily learnt by a simple linear regression.
+Growing discrete signature outperforms truncated signature. As the order of truncated discrete signature increases, it tends to its limit of approximation. The limitation is caused by mis-computing the quadratic variation term using Stratonovich integration. As the order of growing discrete signature increases, its performance tends to the performance of Euler method. Therefore, if we know the signature of our control at $T$, then multiplying signatures with vector field gives a simulation as good as Euler method. The key here is the linear relation between signatures and values of SDE. This linear relation can be easily learnt by linear regression.
 
 \section{Learning from path to path}
-Consider controlled differential equations 
+Consider the following controlled differential equations:
 \begin{equation}
-  dX_{t} = \sum_{k=1}^{m}V^{k}(X_{t})dW^{k}_{t},\quad X_{t}\in\R^{d}
+  dX_{t} = \sum_{k=1}^{m}V^{k}(X_{t})dW^{k}_{t},\quad X_{0}\in\R^{d},
 \end{equation}
-By generalized Taylor's expansion we have 
+where $V^{k}\colon \R^{d} \to \R^{d\times m}, k = 1,\cdots, m$ are vector fields and $(W_{t})_{t\geq 0}$ is an $m$-dimensional Brownian motion. By generalized Taylor's expansion we obtain that 
 \begin{equation}\label{eq62}
     \begin{split}
-        X^{(i)}_{t} &= \sum_{m=0}^{\infty}\sum_{i_{1},\cdots,i_{m} = 1}^{d}\mathbf{Sig}_{[0,t]}^{i_{1},\cdots,i_{m}}(W)\sum_{j=1}^{d}M^{i_{1},\cdots,i_{m}}_{i,j}X^{(j)}_{s}\\
-        &= \sum_{m=0}^{\infty}\sum_{i_{1},\cdots,i_{m} = 1}^{d}\sum_{j=1}^{d}M^{i_{1},\cdots,i_{m}}_{i,j} \mathbf{Sig}_{[0s,t]}^{i_{1},\cdots,i_{m}}(W) X^{(j)}_{0}\\
-        &= \langle M_{i} ,  \mathbf{Sig}_{[s,t]} \otimes X_{s} \rangle
+        X^{(i)}_{t} &= \sum_{m=0}^{\infty}\sum_{i_{1},\cdots,i_{m} = 1}^{d}\mathbf{Sig}_{[s,t]}^{i_{1},\cdots,i_{m}}(W)\sum_{j=1}^{d}M^{i_{1},\cdots,i_{m}}_{i,j}X^{(j)}_{s}\\
+        &= \sum_{m=0}^{\infty}\sum_{i_{1},\cdots,i_{m} = 1}^{d}\sum_{j=1}^{d}M^{i_{1},\cdots,i_{m}}_{i,j} \mathbf{Sig}_{[s,t]}^{i_{1},\cdots,i_{m}}(W) X^{(j)}_{0}\\
+        &= \langle M_{i} ,  \mathbf{Sig}_{[s,t]} \otimes X_{s} \rangle,
     \end{split}
 \end{equation}
-Where $M^{i_{1},\cdots,i_{m}}_{i,j}$ are matrixes depending on $s$. If we let $\mathcal{X} = \mathbf{Sig}_{[s,t]} \otimes X_{s}$ and $\mathcal{Y} = X_{t}$, we can learn the relation in \eqref{eq62} by a linear regression on $(\mathcal{X},\mathcal{Y})$. This idea was first shown to me in the machine learning in finance course by Prof. Josef Teichmann, where he also introduced reservoir computing which is closely related to this approach here if you consider the signature stream as a reservoir. We refer interested readers on signature and reservoir computing to discussion in [???]. Now, we consider $m = d = 2$ and the following dynamic
+where $M^{i_{1},\cdots,i_{m}}_{i,j}$ are matrixes depending on $s$. If we let $\mathcal{X} = \mathbf{Sig}_{[s,t]} \otimes X_{s}$ and $\mathcal{Y} = X_{t}$, we can learn the linear relation in \eqref{eq62} by linear regression on the pair $(\mathcal{X},\mathcal{Y})$. This idea was first shown to me in the machine learning in finance course by Prof. Josef Teichmann, where he also introduced reservoir computing. Reservoir computing is closely related to the above approach if you consider the signature features as a reservoir, and we refer interested readers in reservoir computing to discussion in \cite{cuchiero2020discrete}. Now, we take $m = d = 2$ and 
 \begin{equation*}
   V^{1}(X) = \begin{bmatrix}
     2|X^{(2)}|^{0.7}\\
@@ -1224,52 +1218,52 @@ Where $M^{i_{1},\cdots,i_{m}}_{i,j}$ are matrixes depending on $s$. If we let $\
 \end{equation*}
 For reservoir space, we consider 
 \begin{equation}
-  dR_{t} = \sum_{k=1}^{m}(A^{k}R_{t} + b^{k})dW^{k}_{t},\quad R_{t}\in\R^{d}
+  dR_{t} = \sum_{k=1}^{m}(A^{k}R_{t} + b^{k})dW^{k}_{t},\quad R_{0}\in\R^{d}
 \end{equation}
-where $A^{k}$ and $b^{k}$ are random matrix and vector. We stimulate the real solution $X$ with Euler scheme on $[0,1]$ with $2000$ grid points. 
+where $A^{k}$ is random matrix, $b^{k}$ is random vector, and $(W_{t})_{t\geq 0}$ is an $m$-dimensional Brownian motion. We simulate the real solution with Euler scheme on $[0,1]$ with $2000$ grid points. 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/res1.png}
-    \caption{Solution of SDE stimulated with Euler method}
+    \caption{Solution of SDE simulated with Euler method}
 \end{figure}
-We choose first $t=1,\cdots 1000$ to be training samples, and $t=1001,\cdots 2000$ to be test samples. We use ridge regression to learn matrixes $M^{i_{1},\cdots,i_{m}}_{i,j}$ on training samples, and generate path on testing samples with learnt matrixes. We compared the generated path with true path under the same random seed. 
+We take first $t=1,\cdots 1000$ to be training samples, and $t=1001,\cdots 2000$ to be testing samples. We use ridge regression to learn matrixes $M^{i_{1},\cdots,i_{m}}_{i,j}$ in \eqref{eq62} on training samples, and generate the path on testing samples with learnt matrixes. We compared the generated path with the true path under the same randomness. 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/res2.png}
     \caption{Training path}
 \end{figure}
-Furthermore, we generate path starting from $0$ with another random seed $rs$ and compare the generated path with true path under the same random seed $rs$. 
+Furthermore, we generate a path starting from $0$ with another random seed $rs$ and compare the generated path with true path under the same random seed $rs$. 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/res3.png}
     \caption{Testing path}
 \end{figure}
-Now we present the relation between errors and the order of growing discrete signature 
+Now, we present the relation between errors and orders of growing discrete signature 
  \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/res4.png}
     \caption{ Order - Error}
 \end{figure}
-As the order of discrete signature increases, the error decreases and usually touches the limit when order comes to 6. 
-Next, we use generators we just learnt to generate new samples and compared generators based on different truncation order with MMD distance between samples generated by true dynamic. 
+As the order of discrete signature increases, the error decreases and usually touches its limit when order is increased to 5. 
+Next, we use the linear relation we just learnt to generate new samples. We compared the similarity between new samples and true samples by computing their MMD based on signature kernel.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{figs/res5.png}
   \caption{$T_{U}^{2}$ statistics of different generators}
 \end{figure}
-We found that the market generator learnt by signature of higher order is as good as the real dynamic. In fact, the linear relation not only helps to build a nice model, but also contributes to the training procedure because many robust solvers for linear regression are available. If we simply use Adam algorithm to train the same linear model, the performance is not as good as what we achieved by closed-form solver. 
+We observe that the data generator learnt by signature of higher order (greater than 2) is as good as the real data generator. Here we use the closed-form to solve the ridge regression. If we use Adam algorithm to train the same linear model, the performance is not as good as what we achieved by using closed-form. 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figs/res6.png}
   \caption{Different optimization algorithms}
 \end{figure}
-However, it should be pointed out that this linear relation only holds when we consider path starting from the same initial point because matrixes $M^{i_{1},\cdots,i_{m}}_{i,j}$ depends on the gradient of vector field at the starting point $X_{s}$. Therefore, unless the the vector field is linear (gradient independent of $X_{s}$), our model can not be directly applied if samples are paths starting from different initial points. We consider the same controlled differential equation and we split path in to subpaths before construct training data. Since the first dimension is driven by nonlinear dynamic, the performance of training is greatly interfered by splitting data, while even though the second dimension is driven by linear dynamic, the performance still decreases as we split path into subpaths. 
+However, this linear relation only holds when path samples start from the same initial point because matrixes $M^{i_{1},\cdots,i_{m}}_{i,j}$ depends on the gradient of vector field at the starting point $X_{s}$. Therefore, unless the the vector field is linear (gradient independent of $X_{s}$), our model is not valid. Let us consider the same controlled differential equation and split one path into subpaths. Since the first coordinate of the SDE we consider is driven by nonlinear vector field, the performance of first coordinate is poor with splitting.
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figs/res7.png}
   \caption{Splitting paths}
 \end{figure}
-We propose to fix this non-linearity problem by approximate the relation between $X_{s}$ and $M^{i_{1},\cdots,i_{m}}_{i,j}$ by some nonlinear function and more research need to be done in future work. Also, we need to keep in mind that this is not a generative model itself because we are learning the dependency between driving process and controlled process by knowing their value under same random seed. Therefore, in order to generate new samples, we still need to know the distribution of driving process in advance. This might be useful if the target time series you wish to generate is too complicated, but you know that it is driven by some simple process, of which you know the distribution. In this case, as long as you can observe both the target time series and the simple process, you can apply this methodology to generate new samples.
+We propose to fix this problem by approximating the relation between $X_{s}$ and $M^{i_{1},\cdots,i_{m}}_{i,j}$ with some nonlinear function and more research need to be done in future works. Also, we need to keep in mind that this is not a generative model itself because we are learning the dependency from the driving process to the controlled process by knowing their value under the same randomness. Therefore, in order to generate new samples, we still need to be able to generate the driving process first. Sometimes the target time series you wish to generate is too complicated. However, you might know the time series is driven by a simple process, which you can generate. In this case, you can apply the above methodology to generate new samples of a time series.
 
 
 \nocite{*}
